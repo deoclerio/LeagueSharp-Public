@@ -171,7 +171,7 @@ namespace SigmaFizz
                 {
                     if (Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) < E.Range && jumpState != 1)
                     {
-                        if (E.GetPrediction(eTarget).HitChance >= Prediction.HitChance.HighHitchance)
+                        if (E.GetPrediction(eTarget).Hitchance >= HitChance.High)
                         {
                             E.Cast(eTarget, true);
                         }
@@ -179,7 +179,7 @@ namespace SigmaFizz
 
                     if (Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) < E.Range && Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) > 300 && jumpState == 1)
                     {
-                        if (E2.GetPrediction(eTarget).HitChance >= Prediction.HitChance.HighHitchance)
+                        if (E2.GetPrediction(eTarget).Hitchance >= HitChance.High)
                         {
 
                             E2.Cast(eTarget, true);
@@ -204,20 +204,13 @@ namespace SigmaFizz
                     Q.CastOnUnit(qTarget);
                 }
             }
-            if (wTarget != null && Config.Item("UseWCombo").GetValue<bool>())
-            {
-                if (Orbwalking.InAutoAttackRange(wTarget) && W.IsReady())
-                {
-                    
-                }
-            }
             if (eTarget != null && Config.Item("UseECombo").GetValue<bool>())
             {
                 if (eTarget.IsValidTarget(800) && E.IsReady())
                 {
                     if (Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) < 800 && jumpState != 1)
                     {
-                        if (E.GetPrediction(eTarget).HitChance >= Prediction.HitChance.HighHitchance)
+                        if (E.GetPrediction(eTarget).Hitchance >= HitChance.High)
                         {
                             E.Cast(eTarget, true);
                         }
@@ -225,7 +218,7 @@ namespace SigmaFizz
 
                     if (Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) < E.Range && Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) > 300 && jumpState == 1)
                     {
-                        if (E2.GetPrediction(eTarget).HitChance >= Prediction.HitChance.HighHitchance)
+                        if (E2.GetPrediction(eTarget).Hitchance >= HitChance.High)
                         {
 
                             E2.Cast(eTarget, true);
@@ -239,7 +232,7 @@ namespace SigmaFizz
                 {
                     if (R.GetDamage(rTarget) > rTarget.Health || R.GetDamage(rTarget) + W.GetDamage(rTarget) + E.GetDamage(rTarget) + Q.GetDamage(rTarget) > rTarget.Health)
                     {
-                        if (R.GetPrediction(rTarget).HitChance >= Prediction.HitChance.HighHitchance)
+                        if (R.GetPrediction(rTarget).Hitchance >= HitChance.High)
                         {
                             R.Cast(rTarget, true);
                         }
@@ -259,9 +252,9 @@ namespace SigmaFizz
             R = new Spell(SpellSlot.R, 1275);
            
 
-            E.SetSkillshot(0.5f, 120, 1300, false, Prediction.SkillshotType.SkillshotCircle);
-            E2.SetSkillshot(0.5f, 400, 1300, false, Prediction.SkillshotType.SkillshotCircle);
-            R.SetSkillshot(0.5f, 250f, 1200f, false, Prediction.SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.5f, 120, 1300, false, SkillshotType.SkillshotCircle);
+            E2.SetSkillshot(0.5f, 400, 1300, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.5f, 250f, 1200f, false, SkillshotType.SkillshotLine);
             
             SpellList.Add(Q);
             SpellList.Add(W);

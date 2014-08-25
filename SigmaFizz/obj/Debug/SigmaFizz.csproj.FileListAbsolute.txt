@@ -15,9 +15,9 @@ C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\bin\Debug\clipper_library.
 C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\bin\Debug\LeagueSharp.xml
 C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\bin\Debug\SharpDX.Toolkit.xml
 C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\bin\Debug\SharpDX.Toolkit.Graphics.xml
-C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.exe
-C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.pdb
 C:\Users\Joey\Desktop\L#\Assemblies\SigmaFizz.exe.config
 C:\Users\Joey\Desktop\L#\Assemblies\SigmaFizz.exe
 C:\Users\Joey\Desktop\L#\Assemblies\SigmaFizz.pdb
 C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.csprojResolveAssemblyReference.cache
+C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.exe
+C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.pdb
