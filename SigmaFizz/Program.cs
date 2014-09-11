@@ -19,6 +19,13 @@ namespace SigmaFizz
         public static Spell E;
         public static Spell E2;
         public static Spell R;
+        public static bool useUlt;
+        public static bool useIgnite;
+        public static bool useDFG;
+        public static SpellDataInst qSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
+        public static SpellDataInst wSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W);
+        public static SpellDataInst eSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E);
+        public static SpellDataInst rSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R);
         public static Menu Config;
         public static Orbwalking.Orbwalker Orbwalker;
         public static List<Spell> SpellList = new List<Spell>();
@@ -26,7 +33,8 @@ namespace SigmaFizz
         public static int jumpState;
         public static float time;
         public static bool called;
-
+        private static Items.Item DFG;
+        public static SpellSlot Dot;
 
         static void Main(string[] args)
         {
@@ -67,16 +75,16 @@ namespace SigmaFizz
             foreach (var spell in SpellList)
             {
                 var menuItem = Config.Item(spell.Slot + "Range").GetValue<Circle>();
-                if (menuItem.Active)
+                if (menuItem.Active && spell.IsReady())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.ServerPosition, spell.Range, menuItem.Color);
+                    Utility.DrawCircle(ObjectManager.Player.Position, spell.Range, menuItem.Color);
                 }
             }
         }
 
         private static void OnTick(EventArgs args)
         {
-
+            
             if (time + 1f < Game.Time && !called)
             {
                 called = true;
@@ -149,21 +157,11 @@ namespace SigmaFizz
 
             }
         }
-            
-
 
         private static void harass()
         {
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-
-            if (qTarget != null && Config.Item("UseQHarass").GetValue<bool>())
-            {
-                if (qTarget.IsValidTarget(Q.Range) && Q.IsReady())
-                {
-                    Q.CastOnUnit(qTarget);
-                }
-            }
 
             if (eTarget != null && Config.Item("UseEHarass").GetValue<bool>())
             {
@@ -187,6 +185,13 @@ namespace SigmaFizz
                     }
                 }
             }
+            if (qTarget != null && Config.Item("UseQHarass").GetValue<bool>())
+            {
+                if (qTarget.IsValidTarget(Q.Range) && Q.IsReady())
+                {
+                    Q.CastOnUnit(qTarget);
+                }
+            }
         }
 
         private static void combo()
@@ -196,12 +201,27 @@ namespace SigmaFizz
             var eTarget = SimpleTs.GetTarget(800, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (qTarget != null && Config.Item("UseQCombo").GetValue<bool>())
-            {
-                if (qTarget.IsValidTarget(Q.Range) && Q.IsReady())
-                {
+            useDFG = false;
+            useUlt = false;
 
-                    Q.CastOnUnit(qTarget);
+            var dmg = getComboDamge(rTarget);
+            if (useDFG)
+            {
+                DFG.Cast(rTarget);
+            }
+
+            if (rTarget != null && Config.Item("UseRCombo").GetValue<bool>())
+            {
+                if (rTarget.IsValidTarget(R.Range) && R.IsReady() && useUlt)
+                {
+                    if (rTarget.Health < getComboDamge(rTarget))
+                    {
+                        if (R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+                        {
+                            R.Cast(rTarget, true);
+                            
+                        }
+                    }
                 }
             }
             if (eTarget != null && Config.Item("UseECombo").GetValue<bool>())
@@ -220,37 +240,91 @@ namespace SigmaFizz
                     {
                         if (E2.GetPrediction(eTarget).Hitchance >= HitChance.High)
                         {
-
                             E2.Cast(eTarget, true);
                         }
                     }
                 }
             }
-            if (rTarget != null && Config.Item("UseRCombo").GetValue<bool>())
-            {
-                if (rTarget.IsValidTarget(R.Range) && R.IsReady())
-                {
-                    if (R.GetDamage(rTarget) > rTarget.Health || R.GetDamage(rTarget) + W.GetDamage(rTarget) + E.GetDamage(rTarget) + Q.GetDamage(rTarget) > rTarget.Health)
-                    {
-                        if (R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+             if (qTarget != null && Config.Item("UseQCombo").GetValue<bool>())
                         {
-                            R.Cast(rTarget, true);
+                            if (qTarget.IsValidTarget(Q.Range) && Q.IsReady())
+                            {
+                                Q.CastOnUnit(qTarget);
+                            }
                         }
-                    }
-                }
+        }
+
+        private static float getComboDamge(Obj_AI_Hero target)
+        {
+            useIgnite = false;
+            useDFG = false;
+            useUlt = false;
+
+            var dmg = 0f;
+            var manaCost = 0f;
+            var igniteDmg = DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
+
+            if (E.IsReady() && eSpell.ManaCost < (Player.Mana - manaCost) || eSpell.Cooldown < 1f && eSpell.ManaCost < (Player.Mana - manaCost))
+            {
+                manaCost = manaCost + eSpell.ManaCost;
+                dmg = dmg + E.GetDamage(target);
             }
+
+            if (W.IsReady() && wSpell.ManaCost < (Player.Mana - manaCost) || wSpell.Cooldown < 1f && wSpell.ManaCost < (Player.Mana - manaCost))
+            {
+                manaCost = manaCost + wSpell.ManaCost;
+                dmg = dmg + W.GetDamage(target);
+            }
+
+            if (Q.IsReady() && qSpell.ManaCost < (Player.Mana - manaCost) || qSpell.Cooldown < 1f && qSpell.ManaCost < (Player.Mana - manaCost))
+            {
+                manaCost = manaCost + qSpell.ManaCost;
+                dmg = dmg + Q.GetDamage(target);
+            }
+
+            if (dmg > target.Health)
+            {
+                useIgnite = false;
+                useDFG = false;
+                useUlt = false;
+                return dmg;
+            }
+            if (R.IsReady() && rSpell.ManaCost < (Player.Mana - manaCost) || rSpell.Cooldown < 1f && rSpell.ManaCost < (Player.Mana - manaCost))
+            {
+             manaCost = manaCost + rSpell.ManaCost;
+             dmg = dmg + R.GetDamage(target);
+            }
+
+            if (dmg < target.Health)
+            {
+                useUlt = true;
+            }
+            if (dmg < target.Health && DFG.IsReady())
+            {
+                useDFG = true;
+                dmg = dmg * 1.2f;
+                dmg = dmg + (float)DamageLib.getDmg(target, DamageLib.SpellType.DFG);
+            }
+            return dmg;
         }
 
         private static void OnLoad(EventArgs args)
         {
+            
+            var spells = ObjectManager.Player.SummonerSpellbook.Spells;
+            foreach (var spell in spells.Where(spell => spell.Name.ToLower() == "summonerdot"))
+            {
+                Dot = spell.Slot;
+            }
+                
 
+            DFG = new Items.Item(3128, 750f);
 
             Q = new Spell(SpellSlot.Q, 550);
             W = new Spell(SpellSlot.W, 0);
             E = new Spell(SpellSlot.E, 400);
             E2 = new Spell(SpellSlot.E, 400);
             R = new Spell(SpellSlot.R, 1275);
-           
 
             E.SetSkillshot(0.5f, 120, 1300, false, SkillshotType.SkillshotCircle);
             E2.SetSkillshot(0.5f, 400, 1300, false, SkillshotType.SkillshotCircle);
@@ -271,6 +345,8 @@ namespace SigmaFizz
             Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
 
             Config.AddSubMenu(new Menu("Combo", "Combo"));
+            Config.SubMenu("Combo").AddItem(new MenuItem("items", "Use Items").SetValue(true));
+            Config.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));

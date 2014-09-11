@@ -21,3 +21,6 @@ C:\Users\Joey\Desktop\L#\Assemblies\SigmaFizz.pdb
 C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.csprojResolveAssemblyReference.cache
 C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.exe
 C:\Users\Joey\Desktop\L#\Projects\SigmaFizz\SigmaFizz\obj\Debug\SigmaFizz.pdb
+C:\Users\Joey\Desktop\L#\Assemblies\NewBuilds\SigmaFizz.exe.config
+C:\Users\Joey\Desktop\L#\Assemblies\NewBuilds\SigmaFizz.exe
+C:\Users\Joey\Desktop\L#\Assemblies\NewBuilds\SigmaFizz.pdb
