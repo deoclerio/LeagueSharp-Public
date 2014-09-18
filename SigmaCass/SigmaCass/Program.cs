@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 
 namespace SigmaCass
 {
@@ -24,6 +25,19 @@ namespace SigmaCass
             LeagueSharp.Common.CustomEvents.Game.OnGameLoad += onGameLoad;
             Game.OnGameUpdate += OnTick;
             Drawing.OnDraw += OnDraw;
+            Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
+        }
+
+        static void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        {
+             if (Config.Item("LaneClearActive").GetValue<KeyBind>().Active)
+            {
+                if (args.Target.HasBuffOfType(BuffType.Poison) && args.Target.Health < E.GetDamage(args.Target) && E.IsReady() && args.Target.Type == GameObjectType.obj_AI_Minion)
+                {
+                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(Player.Position.X, Player.Position.Y + 1f, Player.Position.Z));
+                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector3(Player.Position.X, Player.Position.Y - 1f, Player.Position.Z));
+                } 
+            }
         }
 
         private static void OnDraw(EventArgs args)
@@ -68,11 +82,7 @@ namespace SigmaCass
             var useE = Config.Item("UseECombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            if (eTarget.IsValidTarget(R.Range) && R.IsReady() && useR)
-            {
-                R.CastIfWillHit(eTarget, Config.Item("rCount").GetValue<Slider>().Value, true);
-                return;
-            }
+
             if (eTarget.IsValidTarget(E.Range) && E.IsReady() && useE)
             {
                 if (eTarget.HasBuffOfType(BuffType.Poison) || DamageLib.getDmg(eTarget, DamageLib.SpellType.E) > eTarget.Health)
@@ -161,12 +171,13 @@ namespace SigmaCass
 
         private static void onGameLoad(EventArgs args)
         {
+            Player = ObjectManager.Player;
             Q = new Spell(SpellSlot.Q, 925);
             W = new Spell(SpellSlot.W, 925);
             E = new Spell(SpellSlot.E, 700);
             R = new Spell(SpellSlot.R, 875);
 
-            Q.SetSkillshot(0.25f, 130, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(0.5f, 130, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.5f, 212, 2500, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(0.5f, 210, float.MaxValue, false, SkillshotType.SkillshotCone);
 
@@ -188,8 +199,6 @@ namespace SigmaCass
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-            Config.SubMenu("Combo").AddItem(new MenuItem("rCount", "Min R Count").SetValue(new Slider(2, 1, 5)));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             Config.AddSubMenu(new Menu("Harass", "Harass"));
