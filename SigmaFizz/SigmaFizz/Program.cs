@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Igniter;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
