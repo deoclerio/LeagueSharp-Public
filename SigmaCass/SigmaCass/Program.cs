@@ -80,26 +80,27 @@ namespace SigmaCass
             var useQ = Config.Item("UseQCombo").GetValue<bool>();
             var useW = Config.Item("UseWCombo").GetValue<bool>();
             var useE = Config.Item("UseECombo").GetValue<bool>();
-            var useR = Config.Item("UseRCombo").GetValue<bool>();
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-
-            if (eTarget.IsValidTarget(E.Range) && E.IsReady() && useE)
+            var eTarget = SimpleTs.GetTarget(1000f, SimpleTs.DamageType.Magical);
+            if (eTarget != null)
             {
-                if (eTarget.HasBuffOfType(BuffType.Poison) || DamageLib.getDmg(eTarget, DamageLib.SpellType.E) > eTarget.Health)
+                if (Player.Distance(eTarget) < E.Range && E.IsReady() && useE)
                 {
-                    E.CastOnUnit(eTarget, true);
+                    if (eTarget.HasBuffOfType(BuffType.Poison) || DamageLib.getDmg(eTarget, DamageLib.SpellType.E) > eTarget.Health)
+                    {
+                        E.CastOnUnit(eTarget, true);
+                        return;
+                    }
+                }
+                if (Player.Distance(eTarget) < Q.Range && Q.IsReady() && useQ)
+                {
+                    Q.CastIfHitchanceEquals(eTarget, HitChance.High, true);
                     return;
                 }
-            }
-            if (eTarget.IsValidTarget(Q.Range) && Q.IsReady() && useQ)
-            {
-                Q.CastIfHitchanceEquals(eTarget, HitChance.High, true);
-                return;
-            }
-            if (eTarget.IsValidTarget(W.Range) && W.IsReady() && useW)
-            {
-                W.CastIfHitchanceEquals(eTarget, HitChance.High, true);
-                return;
+                if (Player.Distance(eTarget) < W.Range && W.IsReady() && useW)
+                {
+                    W.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                    return;
+                }
             }
 
         }
