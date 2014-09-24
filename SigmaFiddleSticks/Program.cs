@@ -112,9 +112,10 @@ namespace SigmaFiddleSticks
                     }
                     if (Player.Distance(Target) < 575 && useW && W.IsReady())
                     {
-                        W.CastOnUnit(Target, true);
+                        isChannel = true;
                         Orbwalker.SetMovement(false);
                         Orbwalker.SetAttacks(false);
+                        W.CastOnUnit(Target, true);
                         return;
                     }
                     if (Player.Distance(Target) < E.Range && useE && E.IsReady())
@@ -143,6 +144,8 @@ namespace SigmaFiddleSticks
                     if (Player.Distance(Target) < W.Range && useW && W.IsReady())
                     {
                         isChannel = true;
+                        Orbwalker.SetMovement(false);
+                        Orbwalker.SetAttacks(false);
                         W.CastOnUnit(Target);
                         return;
                     }
@@ -201,6 +204,8 @@ namespace SigmaFiddleSticks
                         if (W.IsReady() && useW)
                         {
                             isChannel = true;
+                            Orbwalker.SetMovement(false);
+                            Orbwalker.SetAttacks(false);
                             W.CastOnUnit(minion);
                             return;
                         }
