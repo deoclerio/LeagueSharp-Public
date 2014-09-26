@@ -18,23 +18,28 @@ namespace SigmaFiddleSticks
         public static Spell Q;
         public static Spell W;
         public static Spell E;
-        public static bool isChannel;
+        public static int count;
+        public static float newTime;
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             LeagueSharp.Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Game.OnGameSendPacket += Game_OnGameSendPacket;
         }
+
+      
 
         static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.Name == Player.Name && args.SData.Name == "Drain")
             {
-                isChannel = true;
+                newTime = Game.Time + 1f;
+                Orbwalker.SetMovement(false);
+                Orbwalker.SetAttacks(false);
             }
         }
-
 
         static void Drawing_OnDraw(EventArgs args)
         {
@@ -47,30 +52,26 @@ namespace SigmaFiddleSticks
                 }
             }
         }
-
+        static void Game_OnGameSendPacket(GamePacketEventArgs args)
+            {
+                if (args.PacketData[0] == 0x72 && Player.HasBuff("Drain") && count < 3)
+                {
+                    count = count + 1;
+                    args.Process = false;
+                }
+            }
         static void Game_OnGameUpdate(EventArgs args)
         {
-            if (isChannel)
+            if (Player.HasBuff("Drain"))
             {
                 Orbwalker.SetMovement(false);
                 Orbwalker.SetAttacks(false);
             }
-            var foundBuff = false;
-            if (!Player.IsChanneling)
+            if (!Player.HasBuff("Drain") && newTime < Game.Time)
             {
-                foreach (var buff in Player.Buffs)
-                {
-                    if (buff.Name == "fearmonger_marker")
-                    {
-                        foundBuff = true;
-                    }
-                }
-                if (!foundBuff)
-                {
-                    isChannel = false;
-                    Orbwalker.SetMovement(true);
-                    Orbwalker.SetAttacks(true);
-                }
+                count = 0;
+                Orbwalker.SetMovement(true);
+                Orbwalker.SetAttacks(true);
             }
             if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -98,12 +99,12 @@ namespace SigmaFiddleSticks
         static void combo()
         {
             var useQ = Config.Item("UseQCombo").GetValue<bool>();
-            var useW = true;
+            var useW = Config.Item("UseWCombo").GetValue<bool>(); 
             var useE = Config.Item("UseECombo").GetValue<bool>(); 
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (Target != null)
             {
-                if (!isChannel)
+                if (!Player.HasBuff("Drain"))
                 {
                     if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                     {
@@ -112,9 +113,6 @@ namespace SigmaFiddleSticks
                     }
                     if (Player.Distance(Target) < 575 && useW && W.IsReady())
                     {
-                        isChannel = true;
-                        Orbwalker.SetMovement(false);
-                        Orbwalker.SetAttacks(false);
                         W.CastOnUnit(Target, true);
                         return;
                     }
@@ -134,7 +132,7 @@ namespace SigmaFiddleSticks
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (Target != null)
             {
-                if (!isChannel)
+                if (!Player.HasBuff("Drain"))
                 {
                     if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                     {
@@ -143,9 +141,6 @@ namespace SigmaFiddleSticks
                     }
                     if (Player.Distance(Target) < W.Range && useW && W.IsReady())
                     {
-                        isChannel = true;
-                        Orbwalker.SetMovement(false);
-                        Orbwalker.SetAttacks(false);
                         W.CastOnUnit(Target);
                         return;
                     }
@@ -162,7 +157,7 @@ namespace SigmaFiddleSticks
             var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            if (!isChannel)
+            if (!Player.HasBuff("Drain"))
             {
                 if (jungleMinions.Count > 0)
                 {
@@ -175,9 +170,6 @@ namespace SigmaFiddleSticks
                         }
                         if (W.IsReady() && useW)
                         {
-                            Orbwalker.SetMovement(false);
-                            Orbwalker.SetAttacks(false);
-                            isChannel = true;
                             W.CastOnUnit(minion);
                             return;
                         }
@@ -190,7 +182,7 @@ namespace SigmaFiddleSticks
             var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            if (!isChannel)
+            if (!Player.HasBuff("Drain"))
             {
                 if (jungleMinions.Count > 0)
                 {
@@ -203,9 +195,6 @@ namespace SigmaFiddleSticks
                         }
                         if (W.IsReady() && useW)
                         {
-                            isChannel = true;
-                            Orbwalker.SetMovement(false);
-                            Orbwalker.SetAttacks(false);
                             W.CastOnUnit(minion);
                             return;
                         }
@@ -219,7 +208,7 @@ namespace SigmaFiddleSticks
             var useW = Config.Item("UseWJung").GetValue<bool>();
             var useE = Config.Item("UseEJung").GetValue<bool>();
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-            if (Player.IsChanneling == false)
+            if (!Player.HasBuff("Drain"))
             { 
                 if (jungleMinions.Count > 0)
                 {
@@ -237,9 +226,6 @@ namespace SigmaFiddleSticks
                         }
                         if (W.IsReady() && useW)
                         {
-                            Orbwalker.SetMovement(false);
-                            Orbwalker.SetAttacks(false);
-                            isChannel = true;
                             W.CastOnUnit(minion);
                             return;
                         }
@@ -264,6 +250,8 @@ namespace SigmaFiddleSticks
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+            Config.SubMenu("Combo").AddItem(new MenuItem("sep", "When Using W, it will block"));
+            Config.SubMenu("Combo").AddItem(new MenuItem("sep2", "packets click 3 times to free it"));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             Config.AddSubMenu(new Menu("Harass", "Harass"));
