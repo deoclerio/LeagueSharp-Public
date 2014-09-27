@@ -195,15 +195,12 @@ namespace SigmaFizz
 
         private static void combo()
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(Orbwalking.GetRealAutoAttackRange(Player), SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(800, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            useDFG = false;
-            useUlt = false;
+            useDFG = true;
+            useUlt = true;
 
-            var dmg = getComboDamge(rTarget);
+            
             if (useDFG)
             {
                 DFG.Cast(rTarget);
@@ -223,34 +220,36 @@ namespace SigmaFizz
                     }
                 }
             }
-            if (eTarget != null && Config.Item("UseECombo").GetValue<bool>())
+            if (rTarget != null && Config.Item("UseECombo").GetValue<bool>())
             {
-                if (eTarget.IsValidTarget(800) && E.IsReady())
+                if (rTarget.IsValidTarget(800) && E.IsReady())
                 {
-                    if (Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) < 800 && jumpState != 1)
+                    if (Vector3.Distance(Player.ServerPosition, rTarget.ServerPosition) < 800 && jumpState != 1)
                     {
-                        if (E.GetPrediction(eTarget).Hitchance >= HitChance.High)
+                        if (E.GetPrediction(rTarget).Hitchance >= HitChance.High)
                         {
-                            E.Cast(eTarget, true);
+                            E.Cast(rTarget, true);
                         }
                     }
 
-                    if (Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) < E.Range && Vector3.Distance(Player.ServerPosition, eTarget.ServerPosition) > 300 && jumpState == 1)
+                    if (Vector3.Distance(Player.ServerPosition, rTarget.ServerPosition) < E.Range && Vector3.Distance(Player.ServerPosition, rTarget.ServerPosition) > 300 && jumpState == 1)
                     {
-                        if (E2.GetPrediction(eTarget).Hitchance >= HitChance.High)
+                        if (E2.GetPrediction(rTarget).Hitchance >= HitChance.High)
                         {
-                            E2.Cast(eTarget, true);
+                            E2.Cast(rTarget, true);
                         }
                     }
                 }
             }
-             if (qTarget != null && Config.Item("UseQCombo").GetValue<bool>())
-                        {
-                            if (qTarget.IsValidTarget(Q.Range) && Q.IsReady())
-                            {
-                                Q.CastOnUnit(qTarget);
-                            }
-                        }
+            if (rTarget != null && Config.Item("UseQCombo").GetValue<bool>())
+            {
+                {
+                    if (rTarget.IsValidTarget(Q.Range) && Q.IsReady())
+                    {
+                        Q.CastOnUnit(rTarget);
+                    }
+                }
+            }
         }
 
         private static float getComboDamge(Obj_AI_Hero target)
