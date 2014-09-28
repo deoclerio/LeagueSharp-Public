@@ -231,36 +231,44 @@ namespace SigmaRengar
             var useW = Config.Item("wl").GetValue<bool>();
             var useE = Config.Item("el").GetValue<bool>();
             var minions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Enemy);
-
+            var stackPrior = Config.Item("waveClearPriority").GetValue<StringList>().SelectedIndex;
             var stack5 = Config.Item("51").GetValue<bool>();
-                foreach (var minion in minions)
+                
+            foreach (var minion in minions)
                 {
-                    var stackPrior = Config.Item("waveClearPriority").GetValue<StringList>().SelectedIndex;
-                   
-                    if (Player.Mana < 5 && E.GetDamage(minion) > minion.Health && E.IsReady() && minion.IsValidTarget(E.Range) && useE)
+                    if (E.IsReady())
                     {
-                        E.Cast(minion, true);
-                    }
-                    if (W.IsReady() && minion.IsValidTarget(W.Range) && useW)
-                    {
-                        if (Player.Mana < 5 && W.GetDamage(minion) > minion.Health)
+                        if (Player.Mana < 5 && E.GetDamage(minion) > minion.Health && minion.IsValidTarget(E.Range) && useE)
                         {
-                            W.Cast();
-                        }
-                        else if (Player.Mana == 5 && stackPrior == 1 && stack5)
-                        {
-                            W.Cast();
+                            E.Cast(minion, true);
                         }
                     }
-                    if (Q.GetDamage(minion) > minion.Health && Vector3.Distance(minion.Position, Player.Position) < Orbwalking.GetRealAutoAttackRange(Player) && Q.IsReady() && useQ)
+                    if (W.IsReady())
                     {
-                        if (Player.Mana < 5)
+                        if (minion.IsValidTarget(W.Range) && useW)
                         {
-                            Q.Cast();
+                            if (Player.Mana < 5 && W.GetDamage(minion) > minion.Health)
+                            {
+                                W.Cast();
+                            }
+                            else if (Player.Mana == 5 && stackPrior == 1 && stack5)
+                            {
+                                W.Cast();
+                            }
                         }
-                        else if (Player.Mana == 5 && stackPrior == 0 && stack5)
+                    }
+                    if (Q.IsReady())
+                    {
+                        if (Q.GetDamage(minion) > minion.Health && Vector3.Distance(minion.Position, Player.Position) < Orbwalking.GetRealAutoAttackRange(Player) && useQ)
                         {
-                            Q.Cast();
+                            if (Player.Mana < 5)
+                            {
+                                Q.Cast();
+                            }
+                            else if (Player.Mana == 5 && stackPrior == 0 && stack5)
+                            {
+                                Q.Cast();
+                            }
                         }
                     }
                     if (Player.Distance(minion) <= HDR.Range)
@@ -283,20 +291,26 @@ namespace SigmaRengar
             
                 foreach (var minion in minions)
                 {
-                    if (Player.Mana < 5 && E.GetDamage(minion) > minion.Health && E.IsReady() && minion.IsValidTarget(E.Range) && useE)
+                    if (Q.IsReady())
                     {
-                        E.Cast(minion, true);
+                        if (Player.Mana < 5 && Q.GetDamage(minion) > minion.Health && minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useQ)
+                        {
+                            Q.Cast();
+                        }
                     }
-                    if (Player.Mana < 5 && W.GetDamage(minion) > minion.Health && useW)
+                    if (E.IsReady())
                     {
-                        W.Cast();
+                        if (Player.Mana < 5 && E.GetDamage(minion) > minion.Health && minion.IsValidTarget(E.Range) && useE)
+                        {
+                            E.Cast(minion, true);
+                        }
                     }
-                    if (Player.Mana < 5 && Q.GetDamage(minion) > minion.Health && Vector3.Distance(minion.Position, Player.Position) < Orbwalking.GetRealAutoAttackRange(Player) && Q.IsReady() && useQ)
+                    if (W.IsReady())
                     {
-                        Orbwalker.SetAttacks(false);
-                        Orbwalker.SetMovement(false);
-                        Q.Cast();
-                        Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
+                        if (Player.Mana < 5 && W.GetDamage(minion) > minion.Health && useW && minion.IsValidTarget(W.Range))
+                        {
+                            W.Cast();
+                        }
                     }
                 }
             

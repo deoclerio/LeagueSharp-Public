@@ -104,7 +104,7 @@ namespace SigmaFiddleSticks
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (Target != null)
             {
-                if (!Player.HasBuff("Drain"))
+                if (!Player.HasBuff("Drain") && newTime < Game.Time)
                 {
                     if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                     {
@@ -132,7 +132,7 @@ namespace SigmaFiddleSticks
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (Target != null)
             {
-                if (!Player.HasBuff("Drain"))
+                if (!Player.HasBuff("Drain") && newTime < Game.Time)
                 {
                     if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                     {
@@ -157,7 +157,7 @@ namespace SigmaFiddleSticks
             var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            if (!Player.HasBuff("Drain"))
+            if (!Player.HasBuff("Drain") && newTime < Game.Time)
             {
                 if (jungleMinions.Count > 0)
                 {
@@ -182,7 +182,7 @@ namespace SigmaFiddleSticks
             var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            if (!Player.HasBuff("Drain"))
+            if (!Player.HasBuff("Drain") && newTime < Game.Time)
             {
                 if (jungleMinions.Count > 0)
                 {
@@ -208,7 +208,7 @@ namespace SigmaFiddleSticks
             var useW = Config.Item("UseWJung").GetValue<bool>();
             var useE = Config.Item("UseEJung").GetValue<bool>();
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-            if (!Player.HasBuff("Drain"))
+            if (!Player.HasBuff("Drain") && newTime < Game.Time)
             { 
                 if (jungleMinions.Count > 0)
                 {
