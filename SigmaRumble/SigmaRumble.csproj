@@ -35,14 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BuffManagerLib">
-      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\BuffManagerLib.dll</HintPath>
-    </Reference>
     <Reference Include="clipper_library">
       <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\clipper_library.dll</HintPath>
-    </Reference>
-    <Reference Include="Igniter">
-      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\Igniter.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
       <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\LeagueSharp.dll</HintPath>
@@ -73,9 +67,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Triton">
-      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\Triton.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
