@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <PreBuildEvent />
     <PostBuildEvent />
+    <OutputPath>bin\Release</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -35,25 +36,25 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
-      <HintPath>C:\Users\Joey\Desktop\333\System\clipper_library.dll</HintPath>
+      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>C:\Users\Joey\Desktop\333\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>C:\Users\Joey\Desktop\333\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>C:\Users\Joey\Desktop\333\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>C:\Users\Joey\Desktop\333\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Toolkit">
-      <HintPath>C:\Users\Joey\Desktop\333\System\SharpDX.Toolkit.dll</HintPath>
+      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\SharpDX.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Toolkit.Graphics">
-      <HintPath>C:\Users\Joey\Desktop\333\System\SharpDX.Toolkit.Graphics.dll</HintPath>
+      <HintPath>C:\Users\Joey\Desktop\LoL\THELSHARPNOLAGERINOPLS\System\SharpDX.Toolkit.Graphics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

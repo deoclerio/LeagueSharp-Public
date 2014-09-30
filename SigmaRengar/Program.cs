@@ -160,7 +160,7 @@ namespace SigmaRengar
                     }
                     if (smartE && Player.Distance(eTarget) > Orbwalking.GetRealAutoAttackRange(Player))
                     {
-                        E.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                        E.Cast(eTarget, true);
                         return;
                     }
                 }
@@ -175,7 +175,7 @@ namespace SigmaRengar
                 }
                 if (eTarget.IsValidTarget(E.Range) && E.IsReady() && useE && Player.Mana < 5 || eTarget.IsValidTarget(E.Range) && E.IsReady() && useE && stackPrior == 2 && !smartMode && !is3Q)
                 {
-                    E.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                    E.Cast(eTarget, true);
                     return;
                 }
                 if (Player.Distance(eTarget) < W.Range && W.IsReady() && useW && Player.Mana < 5 || Player.Distance(eTarget) < W.Range && W.IsReady() && useW && stackPrior == 1 && !smartMode && !is3Q)
@@ -215,7 +215,7 @@ namespace SigmaRengar
             {
                 if (eTarget.IsValidTarget(E.Range) && E.IsReady() && useE && Player.Mana > 5 || eTarget.IsValidTarget(E.Range) && E.IsReady() && useE && stackPrior == 2 || Vector3.Distance(eTarget.Position, Player.Position) > Orbwalking.GetRealAutoAttackRange(Player) + 100 && eTarget.IsValidTarget(E.Range) && E.IsReady())
                 {
-                    E.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                    E.Cast(eTarget, true);
                     return;
                 }
                 if (eTarget.IsValidTarget(W.Range) && W.IsReady() && useW && Player.Mana > 5 || eTarget.IsValidTarget(W.Range) && W.IsReady() && useW && stackPrior == 1)
@@ -325,7 +325,7 @@ namespace SigmaRengar
             W = new Spell(SpellSlot.W, 500);
             E = new Spell(SpellSlot.E, 1000);
 
-            E.SetSkillshot(0.5f, 70, 1500, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.5f, 70, 1500, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(W);
             SpellList.Add(E);

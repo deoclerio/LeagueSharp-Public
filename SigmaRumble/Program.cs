@@ -141,7 +141,7 @@ namespace SigmaRumble
                             CastQ(minion, false);
                             return;
                         }
-                        if (E.IsReady() && useE)
+                        if (E.IsReady() && useE && E.GetDamage(minion) > minion.Health)
                         {
                             CastE(minion, false);
                             return;
@@ -166,7 +166,7 @@ namespace SigmaRumble
                             CastQ(minion, false);
                             return;
                         }
-                        if (E.IsReady() && useE)
+                        if (E.IsReady() && useE && E.GetDamage(minion) > minion.Health)
                         {
                             CastE(minion, false);
                             return;
@@ -323,12 +323,12 @@ namespace SigmaRumble
         {
             if (ks)
             {
-                E.CastIfHitchanceEquals(eTarget, HitChance.Medium, true);
+                E.Cast(eTarget, true);
             }
 
             if (!willOverLoad(true) && ks == false)
             {
-                E.CastIfHitchanceEquals(eTarget, HitChance.Medium, true);
+                E.Cast(eTarget, true);
             }
         }
         public static void CastR(Obj_AI_Base rTarget)
@@ -374,7 +374,7 @@ namespace SigmaRumble
             Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(0, R.Slot, -1, p1.X, p1.Y, p2.X, p2.Y)).Send();
         }
 
-        public static bool willOverLoad(bool isE)
+        public static bool willOverLoad(bool isE = false)
         {
             if (isE && Player.HasBuff("RumbleGrenade"))
             {

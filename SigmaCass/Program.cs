@@ -93,12 +93,12 @@ namespace SigmaCass
                 }
                 if (Player.Distance(eTarget) < Q.Range && Q.IsReady() && useQ)
                 {
-                    Q.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                    Q.Cast(eTarget, true);
                     return;
                 }
                 if (Player.Distance(eTarget) < W.Range && W.IsReady() && useW)
                 {
-                    W.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                    W.Cast(eTarget, true);
                     return;
                 }
             }
@@ -120,12 +120,12 @@ namespace SigmaCass
             }
             if (eTarget.IsValidTarget(Q.Range) && Q.IsReady() && useQ)
             {
-                Q.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                Q.Cast(eTarget, true);
                 return;
             }
             if (eTarget.IsValidTarget(W.Range) && W.IsReady() && useW)
             {
-                W.CastIfHitchanceEquals(eTarget, HitChance.High, true);
+                W.Cast(eTarget, true);
                 return;
             }
         }

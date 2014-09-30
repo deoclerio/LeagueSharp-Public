@@ -1,1 +1,1 @@
-C:\Users\Joey\Desktop\LoL\L#\LeagueSharp - Public\LeagueSharp-Public\SigmaCass\bin\Release\SigmaCass.exe.config
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaCass\SigmaCass\bin\Release\SigmaCass.exe.config
