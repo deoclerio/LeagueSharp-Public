@@ -85,7 +85,7 @@ namespace SigmaCass
             {
                 if (Player.Distance(eTarget) < E.Range && E.IsReady() && useE)
                 {
-                    if (eTarget.HasBuffOfType(BuffType.Poison) || DamageLib.getDmg(eTarget, DamageLib.SpellType.E) > eTarget.Health)
+                    if (eTarget.HasBuffOfType(BuffType.Poison) ||E.GetDamage(eTarget) > eTarget.Health)
                     {
                         E.CastOnUnit(eTarget, true);
                         return;
@@ -112,7 +112,7 @@ namespace SigmaCass
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (eTarget.IsValidTarget(E.Range) && E.IsReady() && useE)
             {
-                if (eTarget.HasBuffOfType(BuffType.Poison) || DamageLib.getDmg(eTarget, DamageLib.SpellType.E) > eTarget.Health)
+                if (eTarget.HasBuffOfType(BuffType.Poison) || E.GetDamage(eTarget) > eTarget.Health)
                 {
                     E.CastOnUnit(eTarget, true);
                     return;

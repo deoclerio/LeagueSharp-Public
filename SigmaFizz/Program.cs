@@ -260,7 +260,7 @@ namespace SigmaFizz
 
             var dmg = 0f;
             var manaCost = 0f;
-            var igniteDmg = DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
+            var igniteDmg = Damage.GetSummonerSpellDamage(Player, target, Damage.SummonerSpell.Ignite);
 
             if (E.IsReady() && eSpell.ManaCost < (Player.Mana - manaCost) || eSpell.Cooldown < 1f && eSpell.ManaCost < (Player.Mana - manaCost))
             {
@@ -301,7 +301,7 @@ namespace SigmaFizz
             {
                 useDFG = true;
                 dmg = dmg * 1.2f;
-                dmg = dmg + (float)DamageLib.getDmg(target, DamageLib.SpellType.DFG);
+                dmg = dmg + (int)Damage.GetItemDamage(Player, target, Damage.DamageItems.Dfg);
             }
             return dmg;
         }
