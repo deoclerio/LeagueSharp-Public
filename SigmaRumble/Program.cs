@@ -81,15 +81,17 @@ namespace SigmaRumble
 
         public static void keepHeat()
         {
+            var useQ = Config.Item("keepHeatQ").GetValue<bool>();
+            var useW = Config.Item("keepHeatW").GetValue<bool>();
             if (Player.Mana < 50 && sleepTime + 5f < Game.Time)
             {
-                if (Q.IsReady() && sleepTime + 5f < Game.Time)
+                if (Q.IsReady() && sleepTime + 5f < Game.Time && useQ)
                 {
                     Q.Cast(Game.CursorPos, true);
                     sleepTime = sleepTime + 1f;
                     return;
                 }
-                if (W.IsReady() && sleepTime + 5f < Game.Time)
+                if (W.IsReady() && sleepTime + 5f < Game.Time && useW)
                 {
                     W.Cast();
                     sleepTime = sleepTime + 1f;
@@ -261,6 +263,8 @@ namespace SigmaRumble
             Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("keepHeat", "Maintain Heat").SetValue(new KeyBind("M".ToCharArray()[0], KeyBindType.Toggle)));
+            Config.SubMenu("Combo").AddItem(new MenuItem("keepHeatQ", "Use Q to maintain heat").SetValue(false));
+            Config.SubMenu("Combo").AddItem(new MenuItem("keepHeatW", "Use W to maintain heat").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("castR", "Cast R!").SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
