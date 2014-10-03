@@ -8,27 +8,30 @@ using System.Threading.Tasks;
 
 namespace SigmaSeries.Plugins
 {
-    public class Cassiopeia : PluginBase
+    public class Singed : PluginBase
     {
-        public Cassiopeia()
+        public Singed()
             : base(new Version(0, 1, 1))
         {
-            
-            Q = new Spell(SpellSlot.Q, 925);
-            W = new Spell(SpellSlot.W, 925);
-            E = new Spell(SpellSlot.E, 700);
-            R = new Spell(SpellSlot.R, 875);
 
-            Q.SetSkillshot(0.75f, 130, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            W.SetSkillshot(0.5f, 212, 2500, false, SkillshotType.SkillshotCircle);
-            R.SetSkillshot(0.5f, 210, float.MaxValue, false, SkillshotType.SkillshotCone);
+            Q = new Spell(SpellSlot.Q, 0);
+            W = new Spell(SpellSlot.W, 1175);
+            E = new Spell(SpellSlot.E, 125);
+            R = new Spell(SpellSlot.R, 0);
+
+            useQAgain = true;
+           
+            W.SetSkillshot(0.5f, 350, 700, false, SkillshotType.SkillshotCircle);
         }
+
+        public bool useQAgain;
 
         public override void ComboMenu(Menu config)
         {
             config.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             config.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             config.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+            config.AddItem(new MenuItem("delayms", "Delay (MS)").SetValue<Slider>(new Slider(150, 0, 1000)));
         }
 
         public override void HarassMenu(Menu config)
@@ -41,12 +44,9 @@ namespace SigmaSeries.Plugins
         public override void FarmMenu(Menu config)
         {
             config.AddItem(new MenuItem("UseQWC", "Use Q WC").SetValue(true));
-            config.AddItem(new MenuItem("UseWWC", "Use W WC").SetValue(true));
             config.AddItem(new MenuItem("useEFarm", "E").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 2)));
             config.AddItem(new MenuItem("JungleActive", "JungleActive!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
             config.AddItem(new MenuItem("UseQJung", "Use Q").SetValue(true));
-            config.AddItem(new MenuItem("UseWJung", "Use W").SetValue(true));
-            config.AddItem(new MenuItem("UseEJung", "Use E").SetValue(true));
         }
 
         public override void BonusMenu(Menu config)
@@ -54,37 +54,48 @@ namespace SigmaSeries.Plugins
             config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
         }
 
-
         public override void OnUpdate(EventArgs args)
         {
+
+            foreach (var buff in Player.Buffs)
+            {
+                Console.WriteLine(buff.DisplayName);
+            }
+
             var pCast = Config.Item("packetCast").GetValue<bool>();
             if (ComboActive)
             {
-                var useQCombo = Config.Item("UseQCombo").GetValue<bool>();
-                var useWCombo = Config.Item("UseWCombo").GetValue<bool>();
-                var useECombo = Config.Item("UseECombo").GetValue<bool>();
+                var useQ = Config.Item("UseQCombo").GetValue<bool>();
+                var useW = Config.Item("UseWCombo").GetValue<bool>();
+                var useE = Config.Item("UseECombo").GetValue<bool>();
+                var delay = Config.Item("delayms").GetValue<Slider>().Value;
                 var eTarget = SimpleTs.GetTarget(1000f, SimpleTs.DamageType.Magical);
-                if (eTarget != null)
-                {
-                    if (Player.Distance(eTarget) < E.Range && E.IsReady() && useECombo)
+                
+                    if (Q.IsReady() && useQ)
                     {
-                        if (eTarget.HasBuffOfType(BuffType.Poison) || E.GetDamage(eTarget) > eTarget.Health)
+                        if (Player.HasBuff("Poison Trail"))
                         {
-                            E.CastOnUnit(eTarget, pCast);
-                            return;
+                            Q.Cast(Game.CursorPos, pCast);
+                        }
+                        if (Player.HasBuff("Poison Trail") == false && useQAgain)
+                        {
+                            Q.Cast(Game.CursorPos, pCast);
+                            useQAgain = false;
+                            Utility.DelayAction.Add(delay, () => useQAgain = true);
                         }
                     }
-                    if (Player.Distance(eTarget) < Q.Range && Q.IsReady() && useQCombo)
+                    if (Player.HasBuff("Poison Trail"))
                     {
-                        Q.Cast(eTarget, pCast);
-                        return;
-                    }
-                    if (Player.Distance(eTarget) < W.Range && W.IsReady() && useWCombo)
-                    {
-                        W.Cast(eTarget, pCast);
-                        return;
-                    }
-                }
+                        if (eTarget.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) == false && useW)
+                        {
+                            W.Cast(eTarget, pCast);
+                        }
+                        if (eTarget.IsValidTarget(E.Range) && useE)
+                        {
+                            E.CastOnUnit(eTarget, pCast);
+                        }
+                    } 
+                
             }
 
             if (HarassActive)
@@ -92,24 +103,34 @@ namespace SigmaSeries.Plugins
                 var useQ = Config.Item("UseQHarass").GetValue<bool>();
                 var useW = Config.Item("UseWHarass").GetValue<bool>();
                 var useE = Config.Item("UseEHarass").GetValue<bool>();
+                var delay = Config.Item("delayms").GetValue<Slider>().Value;
                 var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-                if (eTarget.IsValidTarget(E.Range) && E.IsReady() && useE)
+                if (eTarget != null)
                 {
-                    if (eTarget.HasBuffOfType(BuffType.Poison) || E.GetDamage(eTarget) > eTarget.Health)
+                    if (Q.IsReady() && useQ)
                     {
-                        E.CastOnUnit(eTarget, true);
-                        return;
+                        if (Player.HasBuff("Poison Trail"))
+                        {
+                            Q.Cast(Game.CursorPos, pCast);
+                        }
+                        if (Player.HasBuff("Poison Trail") == false && useQAgain)
+                        {
+                            Q.Cast(Game.CursorPos, pCast);
+                            useQAgain = false;
+                            Utility.DelayAction.Add(delay, () => useQAgain = true);
+                        }
                     }
-                }
-                if (eTarget.IsValidTarget(Q.Range) && Q.IsReady() && useQ)
-                {
-                    Q.Cast(eTarget, true);
-                    return;
-                }
-                if (eTarget.IsValidTarget(W.Range) && W.IsReady() && useW)
-                {
-                    W.Cast(eTarget, true);
-                    return;
+                    if (Player.HasBuff("Poison Trail"))
+                    {
+                        if (eTarget.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) == false && useW)
+                        {
+                            W.Cast(eTarget, pCast);
+                        }
+                        if (eTarget.IsValidTarget(E.Range) && useE)
+                        {
+                            E.CastOnUnit(eTarget, pCast);
+                        }
+                    } 
                 }
             }
 
@@ -128,9 +149,6 @@ namespace SigmaSeries.Plugins
             }
         }
 
-        public override void OnDraw(EventArgs args)
-        {
-        }
         private void Freeze()
         {
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
@@ -152,56 +170,54 @@ namespace SigmaSeries.Plugins
         private void Jungle()
         {
             var useQ = Config.Item("UseQJung").GetValue<bool>();
-            var useW = Config.Item("UseWJung").GetValue<bool>();
-            var useE = Config.Item("UseEJung").GetValue<bool>();
 
             var minions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
             if (minions.Count > 1)
             {
                 foreach (var minion in minions)
                 {
-                    if (minion.HasBuffOfType(BuffType.Poison) && minion.IsValidTarget(E.Range))
+                    if (Q.IsReady() && useQ)
                     {
-                        E.CastOnUnit(minion, true);
+                        if (Player.HasBuff("Poison Trail") == false)
+                        {
+                            Q.Cast(Game.CursorPos, true);
+                        }
                     }
-
-                    if (minion.IsValidTarget(Q.Range))
+                }
+            }
+            else
+            {
+                if (Q.IsReady() && useQ)
+                {
+                    if (Player.HasBuff("Poison Trail"))
                     {
-                        Q.Cast(minion, true);
-                    }
-
-                    if (minion.IsValidTarget(Q.Range))
-                    {
-                        W.Cast(minion, true);
+                        Q.Cast(Game.CursorPos, true);
                     }
                 }
             }
         }
         private void WaveClear()
         {
-            var useW = Config.Item("UseQWC").GetValue<bool>();
-            var useQ = Config.Item("UseWWC").GetValue<bool>();
-            var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
+            var useQ = Config.Item("UseQWC").GetValue<bool>();
             var minions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
             if (minions.Count > 1)
             {
-                foreach (var minion in minions)
+                if (Q.IsReady() && useQ)
                 {
-                    var predHP = HealthPrediction.GetHealthPrediction(minion, (int)E.Delay);
-
-                    if (minion.HasBuffOfType(BuffType.Poison) && E.GetDamage(minion) > minion.Health && predHP > 0 && minion.IsValidTarget(E.Range) && useE)
+                    if (Player.HasBuff("Poison Trail") == false)
                     {
-                        E.CastOnUnit(minion, true);
+                        Q.Cast(Game.CursorPos, true);
                     }
+                }
 
-                    if (minion.IsValidTarget(Q.Range) && useQ)
+            }
+            else
+            {
+                if (Q.IsReady() && useQ)
+                {
+                    if (Player.HasBuff("Poison Trail"))
                     {
-                        Q.Cast(Q.GetCircularFarmLocation(minions).Position, true);
-                    }
-
-                    if (minion.IsValidTarget(Q.Range) && useW)
-                    {
-                        W.Cast(W.GetCircularFarmLocation(minions).Position, true);
+                        Q.Cast(Game.CursorPos, true);
                     }
                 }
             }

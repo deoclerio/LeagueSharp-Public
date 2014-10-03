@@ -84,7 +84,15 @@ namespace SigmaSeries
 
         private void extraEvents()
         {
-
+            Drawing.OnDraw += args =>
+            {
+                foreach (var spell in SpellList.Where(s => s != null))
+                {
+                    var menuItem = Config.Item(spell.Slot + "Range" + ChampName).GetValue<Circle>();
+                    if (menuItem.Active && spell.Level > 0 && spell.IsReady())
+                        Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                }
+            };
         }
 
         private void createConfigs()
