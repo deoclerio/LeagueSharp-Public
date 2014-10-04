@@ -35,6 +35,7 @@ namespace SigmaSeries
 
         public static Items.Item Hydra;
         public static Items.Item Tiamat;
+        public static Items.Item DFG;
 
         public void castItems(Obj_AI_Base target, bool isMinion = false)
         {
@@ -59,6 +60,10 @@ namespace SigmaSeries
                 {
                     Tiamat.Cast(target);
                 }
+                if (target.IsValidTarget(DFG.Range) && Config.Item("dfg").GetValue<bool>())
+                {
+                    DFG.Cast(target);
+                }
             }
         }
 
@@ -79,6 +84,7 @@ namespace SigmaSeries
 
             Hydra = new Items.Item(3074, 175f);
             Tiamat = new Items.Item(3077, 175f);
+            DFG = new Items.Item(3128, 750f);
 
             createConfigs();
             eventsLoad();
@@ -120,10 +126,15 @@ namespace SigmaSeries
             BonusConfig = Config.AddSubMenu(new Menu("Extra", "Extra"));
 
             ItemConfig = Config.AddSubMenu(new Menu("Item Configs", "Item Configs"));
-            var subM = ItemConfig.AddSubMenu(new Menu("AD Items", "AD Items"));
+            var subAD = ItemConfig.AddSubMenu(new Menu("AD Items", "AD Items"));
 
-            subM.AddItem(new MenuItem("hdr", "Use Hydra").SetValue(true));
-            subM.AddItem(new MenuItem("tia", "Use Tiamat").SetValue(true));
+            subAD.AddItem(new MenuItem("hdr", "Use Hydra").SetValue(true));
+            subAD.AddItem(new MenuItem("tia", "Use Tiamat").SetValue(true));
+
+            var subAP = ItemConfig.AddSubMenu(new Menu("AP Items", "AP Items"));
+
+            subAP.AddItem(new MenuItem("dfg", "Use Deathfire Grasp").SetValue(true));
+
             ItemConfig.AddItem(new MenuItem("UseItems", "Use Items").SetValue(true));
 
             DrawConfig = Config.AddSubMenu(new Menu("Draw", "Draw"));

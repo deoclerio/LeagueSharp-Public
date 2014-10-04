@@ -71,6 +71,7 @@
     <Compile Include="Plugins\Cassiopeia.cs" />
     <Compile Include="Plugins\Darius.cs" />
     <Compile Include="Plugins\FiddleSticks.cs" />
+    <Compile Include="Plugins\Fizz.cs" />
     <Compile Include="Plugins\Rengar.cs" />
     <Compile Include="Plugins\Rumble.cs" />
     <Compile Include="Plugins\Singed.cs" />

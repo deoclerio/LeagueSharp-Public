@@ -44,8 +44,8 @@ namespace SigmaSeries.Plugins
 
         public override void FarmMenu(Menu config)
         {
-            config.AddItem(new MenuItem("useWFarm", "W").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 3)));
             config.AddItem(new MenuItem("useQFarm", "Q").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 1)));
+            config.AddItem(new MenuItem("useWFarm", "W").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 3)));
             config.AddItem(new MenuItem("JungleActive", "Jungle Clear!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
             config.AddItem(new MenuItem("UseQJung", "Use Q").SetValue(false));
             config.AddItem(new MenuItem("UseWJung", "Use W").SetValue(true));
