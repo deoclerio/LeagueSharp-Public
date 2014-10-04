@@ -57,11 +57,6 @@ namespace SigmaSeries.Plugins
         public override void OnUpdate(EventArgs args)
         {
 
-            foreach (var buff in Player.Buffs)
-            {
-                Console.WriteLine(buff.DisplayName);
-            }
-
             var pCast = Config.Item("packetCast").GetValue<bool>();
             if (ComboActive)
             {
@@ -69,8 +64,9 @@ namespace SigmaSeries.Plugins
                 var useW = Config.Item("UseWCombo").GetValue<bool>();
                 var useE = Config.Item("UseECombo").GetValue<bool>();
                 var delay = Config.Item("delayms").GetValue<Slider>().Value;
-                var eTarget = SimpleTs.GetTarget(1000f, SimpleTs.DamageType.Magical);
-                
+                var eTarget = SimpleTs.GetTarget(500f, SimpleTs.DamageType.Magical);
+                if (eTarget != null)
+                {
                     if (Q.IsReady() && useQ)
                     {
                         if (Player.HasBuff("Poison Trail"))
@@ -84,18 +80,18 @@ namespace SigmaSeries.Plugins
                             Utility.DelayAction.Add(delay, () => useQAgain = true);
                         }
                     }
-                    if (Player.HasBuff("Poison Trail"))
+                    if (Player.HasBuff("Poison Trail") || Q.IsReady() == false)
                     {
                         if (eTarget.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) == false && useW)
                         {
                             W.Cast(eTarget, pCast);
                         }
-                        if (eTarget.IsValidTarget(E.Range) && useE)
+                        if (eTarget.IsValidTarget(E.Range + 100) && useE)
                         {
-                            E.CastOnUnit(eTarget, pCast);
+                            E.CastOnUnit(eTarget, false);
                         }
-                    } 
-                
+                    }
+                }
             }
 
             if (HarassActive)
@@ -152,7 +148,7 @@ namespace SigmaSeries.Plugins
         private void Freeze()
         {
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
-            var minions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
+            var minions = MinionManager.GetMinions(ObjectManager.Player.Position, 400, MinionTypes.All);
             if (minions.Count > 1)
             {
                 foreach (var minion in minions)
@@ -171,8 +167,8 @@ namespace SigmaSeries.Plugins
         {
             var useQ = Config.Item("UseQJung").GetValue<bool>();
 
-            var minions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-            if (minions.Count > 1)
+            var minions = MinionManager.GetMinions(ObjectManager.Player.Position, 400, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+            if (minions.Count > 0)
             {
                 foreach (var minion in minions)
                 {
@@ -199,8 +195,8 @@ namespace SigmaSeries.Plugins
         private void WaveClear()
         {
             var useQ = Config.Item("UseQWC").GetValue<bool>();
-            var minions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            if (minions.Count > 1)
+            var minions = MinionManager.GetMinions(ObjectManager.Player.Position, 400, MinionTypes.All);
+            if (minions.Count > 0)
             {
                 if (Q.IsReady() && useQ)
                 {

@@ -36,15 +36,29 @@ namespace SigmaSeries
         public static Items.Item Hydra;
         public static Items.Item Tiamat;
 
-        public void castItems(Obj_AI_Base target)
+        public void castItems(Obj_AI_Base target, bool isMinion = false)
         {
-            if (Player.Distance(target) <= Hydra.Range && Config.Item("hdr").GetValue<bool>())
+            if (isMinion)
             {
-                Hydra.Cast(target);
+                if (Player.Distance(target) <= Hydra.Range && Config.Item("hdr").GetValue<bool>())
+                {
+                    Hydra.Cast(target);
+                }
+                if (Player.Distance(target) <= Tiamat.Range && Config.Item("tia").GetValue<bool>())
+                {
+                    Tiamat.Cast(target);
+                }
             }
-            if (Player.Distance(target) <= Tiamat.Range && Config.Item("tia").GetValue<bool>())
+            else
             {
-                Tiamat.Cast(target);
+                if (Player.Distance(target) <= Hydra.Range && Config.Item("hdr").GetValue<bool>())
+                {
+                    Hydra.Cast(target);
+                }
+                if (Player.Distance(target) <= Tiamat.Range && Config.Item("tia").GetValue<bool>())
+                {
+                    Tiamat.Cast(target);
+                }
             }
         }
 
