@@ -118,7 +118,8 @@ namespace SigmaSeries
         private void createConfigs()
         {
             Config = new Menu("SigmaSeries - " + Player.ChampionName, "SigmaSeries - " + Player.ChampionName, true);
-
+            var tsMenu = Config.AddSubMenu(new Menu("TargetSelector", "TargetSelector"));
+            SimpleTs.AddToMenu(tsMenu);
             Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
             ComboConfig = Config.AddSubMenu(new Menu("Combo", "Combo"));
             HarassConfig = Config.AddSubMenu(new Menu("Harass", "Harass"));
@@ -149,7 +150,7 @@ namespace SigmaSeries
             BonusMenu(BonusConfig);
             DrawingMenu(DrawConfig);
             ItemMenu(ItemConfig);
-
+            
             Config.AddToMainMenu();
         }
 
