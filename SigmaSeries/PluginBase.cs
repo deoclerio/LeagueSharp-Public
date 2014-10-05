@@ -30,6 +30,7 @@ namespace SigmaSeries
         public Menu FarmConfig { get; set; }
         public Menu BonusConfig { get; set; }
         public Menu ItemConfig { get; set; }
+        public Menu SummonerConfig { get; set; }
 
         public List<Spell> SpellList = new List<Spell>();
 
@@ -67,6 +68,9 @@ namespace SigmaSeries
             }
         }
 
+
+        public static SpellSlot IgniteSlot;
+
         protected PluginBase(Version version)
         {
             ChampName = Player.ChampionName;
@@ -86,6 +90,9 @@ namespace SigmaSeries
             Tiamat = new Items.Item(3077, 175f);
             DFG = new Items.Item(3128, 750f);
 
+
+            IgniteSlot = Player.GetSpellSlot("SummonerDot");
+
             createConfigs();
             eventsLoad();
             extraEvents();
@@ -104,6 +111,18 @@ namespace SigmaSeries
 
         private void extraEvents()
         {
+            Game.OnGameUpdate += args =>
+            {
+                var Target = SimpleTs.GetTarget(600, SimpleTs.DamageType.Magical);
+                if (Target != null && IgniteSlot != SpellSlot.Unknown 
+                    && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready 
+                    && ObjectManager.Player.GetSummonerSpellDamage(Target, Damage.SummonerSpell.Ignite) > Target.Health
+                    && Config.Item("IGNks").GetValue<bool>())
+                {
+                    Player.SummonerSpellbook.CastSpell(IgniteSlot, Target);
+                }
+            };
+
             Drawing.OnDraw += args =>
             {
                 foreach (var spell in SpellList.Where(s => s != null))
@@ -127,16 +146,9 @@ namespace SigmaSeries
             BonusConfig = Config.AddSubMenu(new Menu("Extra", "Extra"));
 
             ItemConfig = Config.AddSubMenu(new Menu("Item Configs", "Item Configs"));
-            var subAD = ItemConfig.AddSubMenu(new Menu("AD Items", "AD Items"));
 
-            subAD.AddItem(new MenuItem("hdr", "Use Hydra").SetValue(true));
-            subAD.AddItem(new MenuItem("tia", "Use Tiamat").SetValue(true));
-
-            var subAP = ItemConfig.AddSubMenu(new Menu("AP Items", "AP Items"));
-
-            subAP.AddItem(new MenuItem("dfg", "Use Deathfire Grasp").SetValue(true));
-
-            ItemConfig.AddItem(new MenuItem("UseItems", "Use Items").SetValue(true));
+            SummonerConfig = Config.AddSubMenu(new Menu("Summoner Configs", "Summoner Configs"));
+           
 
             DrawConfig = Config.AddSubMenu(new Menu("Draw", "Draw"));
             DrawConfig.AddItem(new MenuItem("QRange" + ChampName, "Q Range").SetValue(new Circle(false, System.Drawing.Color.Green)));
@@ -150,8 +162,15 @@ namespace SigmaSeries
             BonusMenu(BonusConfig);
             DrawingMenu(DrawConfig);
             ItemMenu(ItemConfig);
+            SummonerMenu(SummonerConfig);
             
             Config.AddToMainMenu();
+        }
+
+        public virtual void SummonerMenu(Menu SummonerMenu)
+        {
+            var subIGNITE = SummonerConfig.AddSubMenu(new Menu("Ignite", "Ignite"));
+            subIGNITE.AddItem(new MenuItem("IGNks", "Use Ignite to KS").SetValue(true));
         }
 
         public void addOW()
@@ -160,9 +179,20 @@ namespace SigmaSeries
         }
         public virtual void ComboMenu(Menu config)
         {
+
         }
         public virtual void ItemMenu(Menu config)
         {
+            var subAD = ItemConfig.AddSubMenu(new Menu("AD Items", "AD Items"));
+
+            subAD.AddItem(new MenuItem("hdr", "Use Hydra").SetValue(true));
+            subAD.AddItem(new MenuItem("tia", "Use Tiamat").SetValue(true));
+
+            var subAP = ItemConfig.AddSubMenu(new Menu("AP Items", "AP Items"));
+
+            subAP.AddItem(new MenuItem("dfg", "Use Deathfire Grasp").SetValue(true));
+
+            ItemConfig.AddItem(new MenuItem("UseItems", "Use Items").SetValue(true));
         }
         public virtual void HarassMenu(Menu config)
         {
@@ -194,5 +224,6 @@ namespace SigmaSeries
         public virtual void OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
         }
+
     }
 }
