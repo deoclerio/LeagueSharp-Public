@@ -78,11 +78,9 @@ namespace SigmaSeries.Plugins
 
         private void combo()
         {
-
             var useQ = Config.Item("UseQCombo").GetValue<bool>();
             var useW = Config.Item("UseWCombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
-            var slider = Config.Item("minPeopleR").GetValue<Slider>().Value;
             var Target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
             if (Target != null)
             {

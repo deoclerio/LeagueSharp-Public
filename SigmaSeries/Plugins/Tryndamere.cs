@@ -1,0 +1,200 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using LeagueSharp;
+using LeagueSharp.Common;
+using SharpDX;
+
+namespace SigmaSeries.Plugins
+{
+    public class Tryndamere : PluginBase
+    {
+        public Tryndamere()
+            : base(new Version(0, 1, 1))
+        {
+            Q = new Spell(SpellSlot.Q, 0);
+            W = new Spell(SpellSlot.W, 800);
+            E = new Spell(SpellSlot.E, 600);
+            R = new Spell(SpellSlot.R, 0);
+
+            E.SetSkillshot(0.5f, 225f, 700f, false, SkillshotType.SkillshotCircle);
+
+        }
+
+        public static bool packetCast;
+
+
+        public override void ComboMenu(Menu config)
+        {
+            config.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(false));
+            config.AddItem(new MenuItem("minQHP", "Min Q HP").SetValue(new Slider(15, 1, 100)));
+            config.AddItem(new MenuItem("smartSep", "- - Smart W Settings").SetValue(true));
+            config.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
+            config.AddItem(new MenuItem("wBack", "Use W if facing + Out of AA Range").SetValue(true));
+            config.AddItem(new MenuItem("wFront", "Use W if in AA Range").SetValue(false));
+            config.AddItem(new MenuItem("UseECombo", "Use E infront of unit").SetValue(false));
+            config.AddItem(new MenuItem("UseRCombo", "Use R!").SetValue(true));
+            config.AddItem(new MenuItem("minRHP", "Min R HP").SetValue(new Slider(5, 1, 100)));
+        }
+
+        public override void HarassMenu(Menu config)
+        {
+            config.AddItem(new MenuItem("extraPARRAMAMAMAM", "Use Mixed Mode, No Skills."));
+        }
+
+        public override void FarmMenu(Menu config)
+        {
+            config.AddItem(new MenuItem("useEWC", "Use E WC").SetValue(false));
+            config.AddItem(new MenuItem("JungleActive", "Jungle Clear!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+            config.AddItem(new MenuItem("UseQJung", "Use Q").SetValue(false));
+            config.AddItem(new MenuItem("minQHPJung", "Min Q HP").SetValue(new Slider(15, 1, 100)));
+        }
+
+        public override void BonusMenu(Menu config)
+        {
+            config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
+        }
+
+        public override void OnUpdate(EventArgs args)
+        {
+            if (ComboActive)
+            {
+                combo();
+            }
+            if (HarassActive)
+            {
+                harass();
+            }
+            if (WaveClearActive)
+            {
+                waveClear();
+            }
+            if (FreezeActive)
+            {
+                freeze();
+            }
+            if (Config.Item("JungleActive").GetValue<KeyBind>().Active)
+            {
+                jungle();
+            }
+        }
+
+        private void combo()
+        {
+            var useQ = Config.Item("UseQCombo").GetValue<bool>();
+            var useW = Config.Item("UseWCombo").GetValue<bool>();
+            var useWF = Config.Item("wFront").GetValue<bool>();
+            var useWB = Config.Item("wBack").GetValue<bool>();
+            var useE = Config.Item("UseECombo").GetValue<bool>();
+            var useR = Config.Item("UseRCombo").GetValue<bool>();
+            var Target = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
+            if (Target != null)
+            {
+                castItems(Target);
+                if (useW && W.IsReady())
+                {
+                    if (Player.Distance(Target) < Orbwalking.GetRealAutoAttackRange(Player) && useWF)
+                    {
+                        W.Cast(Player.Position, true);
+                    }
+                    else if (useWB)
+                    {
+                        useWSmart(Target);
+                    }
+                }
+                if (Player.Distance(Target) > Orbwalking.GetRealAutoAttackRange(Player) && Player.Distance(Target) < E.Range && useE && E.IsReady())
+                {
+                    var pos1 = Player.Position.To2D();
+                    var pos2 = (Prediction.GetPrediction(Target, 0.5f).CastPosition.To2D() - Player.Position.To2D());
+                    pos2 = pos2.Normalized();
+                    
+                    var pos = pos1 + (pos2 * E.Range);
+
+                    E.Cast(pos, false);
+                }
+            }
+            if (getHPSliderEqual("minQHP", Player) && useQ && Q.IsReady())
+            {
+                Q.Cast(Player.Position, true);
+            }
+            if (getHPSliderEqual("minRHP", Player) && useR && R.IsReady())
+            {
+                R.Cast(Player.Position, true);
+            }
+        }
+        private void harass()
+        {
+        }
+
+        // By DeTuKs
+        private void useWSmart(Obj_AI_Hero target)
+        {
+            float trueAARange = Player.AttackRange + target.BoundingRadius;
+            float trueERange = target.BoundingRadius + W.Range;
+
+            float dist = Player.Distance(target);
+            Vector2 dashPos = new Vector2();
+            if (target.IsMoving)
+            {
+                Vector2 tpos = target.Position.To2D();
+                Vector2 path = target.Path[0].To2D() - tpos;
+                path.Normalize();
+                dashPos = tpos + (path * 100);
+            }
+            float targ_ms = (target.IsMoving && Player.Distance(dashPos) > dist) ? target.MoveSpeed : 0;
+            float msDif = (Player.MoveSpeed - targ_ms) == 0 ? 0.0001f : (Player.MoveSpeed - targ_ms);
+            float timeToReach = (dist - trueAARange) / msDif;
+            //Console.WriteLine(timeToReach);
+            if (dist > trueAARange && dist < trueERange)
+            {
+                if (timeToReach > 1.7f || timeToReach < 0.0f)
+                {
+                    W.Cast();
+                }
+            }
+
+        }
+
+        private void waveClear()
+        {
+            var useE = Config.Item("useEWC").GetValue<bool>();
+            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
+            
+            if (jungleMinions.Count > 0)
+            {
+                foreach (var minion in jungleMinions)
+                {
+                    if (minion.IsValidTarget(E.Range) && E.IsReady() && useE)
+                    {
+                        var ePoint = E.GetCircularFarmLocation(jungleMinions);
+                        E.Cast(ePoint.Position, true);
+                    }
+                }
+
+            }
+        }
+        private void freeze()
+        {
+        }
+        private void jungle()
+        {
+            var useQ = Config.Item("UseQJung").GetValue<bool>();
+            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, 800, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+
+            if (jungleMinions.Count > 0)
+            {
+                if (getHPSliderEqual("minQHPJung", Player) && Q.IsReady())
+                {
+                    Q.Cast(Player.Position, true);
+                }
+            }
+        }
+
+        private bool getHPSliderEqual(String s, Obj_AI_Base unit)
+        {
+            return Config.Item(s).GetValue<Slider>().Value >= ((unit.Health/unit.MaxHealth)*100);
+        }
+    }
+}

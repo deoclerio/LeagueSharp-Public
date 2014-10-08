@@ -39,7 +39,7 @@ namespace SigmaSeries.Plugins
             config.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             config.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             config.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
-            config.AddItem(new MenuItem("UseRCombo", "Use R TO DUNK!").SetValue(true));
+            config.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             config.AddItem(new MenuItem("forceR", "Force R Cast").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
         }
 
@@ -102,7 +102,7 @@ namespace SigmaSeries.Plugins
             var useW = Config.Item("UseWCombo").GetValue<bool>();
             var useE = Config.Item("UseECombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
-            var Target = SimpleTs.GetTarget(Q.Range + 200, SimpleTs.DamageType.Magical);
+            var Target = SimpleTs.GetTarget(800, SimpleTs.DamageType.Magical);
             if (Target != null)
             {
                 if (Target.IsValidTarget(Q.Range) && useQ && Q.IsReady())
@@ -141,7 +141,7 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQHarass").GetValue<bool>();
             var useW = Config.Item("UseWHarass").GetValue<bool>();
             var useE = Config.Item("UseEHarass").GetValue<bool>();
-            var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var Target = SimpleTs.GetTarget(800, SimpleTs.DamageType.Magical);
 
             if (Target != null)
             {

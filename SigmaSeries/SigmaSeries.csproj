@@ -76,6 +76,7 @@
     <Compile Include="Plugins\Rengar.cs" />
     <Compile Include="Plugins\Rumble.cs" />
     <Compile Include="Plugins\Singed.cs" />
+    <Compile Include="Plugins\Tryndamere.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
