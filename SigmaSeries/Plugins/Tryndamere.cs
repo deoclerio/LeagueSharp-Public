@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -11,6 +8,8 @@ namespace SigmaSeries.Plugins
 {
     public class Tryndamere : PluginBase
     {
+        public bool packetCast;
+
         public Tryndamere()
             : base(new Version(0, 1, 1))
         {
@@ -20,10 +19,7 @@ namespace SigmaSeries.Plugins
             R = new Spell(SpellSlot.R, 0);
 
             E.SetSkillshot(0.5f, 225f, 700f, false, SkillshotType.SkillshotCircle);
-
         }
-
-        public static bool packetCast;
 
 
         public override void ComboMenu(Menu config)
@@ -47,7 +43,9 @@ namespace SigmaSeries.Plugins
         public override void FarmMenu(Menu config)
         {
             config.AddItem(new MenuItem("useEWC", "Use E WC").SetValue(false));
-            config.AddItem(new MenuItem("JungleActive", "Jungle Clear!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+            config.AddItem(
+                new MenuItem("JungleActive", "Jungle Clear!").SetValue(new KeyBind("C".ToCharArray()[0],
+                    KeyBindType.Press)));
             config.AddItem(new MenuItem("UseQJung", "Use Q").SetValue(false));
             config.AddItem(new MenuItem("minQHPJung", "Min Q HP").SetValue(new Slider(15, 1, 100)));
         }
@@ -59,6 +57,7 @@ namespace SigmaSeries.Plugins
 
         public override void OnUpdate(EventArgs args)
         {
+            packetCast = Config.Item("packetCast").GetValue<bool>();
             if (ComboActive)
             {
                 combo();
@@ -89,7 +88,7 @@ namespace SigmaSeries.Plugins
             var useWB = Config.Item("wBack").GetValue<bool>();
             var useE = Config.Item("UseECombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
-            var Target = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
+            Obj_AI_Hero Target = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
             if (Target != null)
             {
                 castItems(Target);
@@ -104,26 +103,28 @@ namespace SigmaSeries.Plugins
                         useWSmart(Target);
                     }
                 }
-                if (Player.Distance(Target) > Orbwalking.GetRealAutoAttackRange(Player) && Player.Distance(Target) < E.Range && useE && E.IsReady())
+                if (Player.Distance(Target) > Orbwalking.GetRealAutoAttackRange(Player) &&
+                    Player.Distance(Target) < E.Range && useE && E.IsReady())
                 {
-                    var pos1 = Player.Position.To2D();
-                    var pos2 = (Prediction.GetPrediction(Target, 0.5f).CastPosition.To2D() - Player.Position.To2D());
+                    Vector2 pos1 = Player.Position.To2D();
+                    Vector2 pos2 = (Prediction.GetPrediction(Target, 0.5f).CastPosition.To2D() - Player.Position.To2D());
                     pos2 = pos2.Normalized();
-                    
-                    var pos = pos1 + (pos2 * E.Range);
 
-                    E.Cast(pos, false);
+                    Vector2 pos = pos1 + (pos2*E.Range);
+
+                    E.Cast(pos, packetCast);
                 }
             }
-            if (getHPSliderEqual("minQHP", Player) && useQ && Q.IsReady())
+            if (GetHpSliderEqual("minQHP", Player) && useQ && Q.IsReady())
             {
                 Q.Cast(Player.Position, true);
             }
-            if (getHPSliderEqual("minRHP", Player) && useR && R.IsReady())
+            if (GetHpSliderEqual("minRHP", Player) && useR && R.IsReady())
             {
                 R.Cast(Player.Position, true);
             }
         }
+
         private void harass()
         {
         }
@@ -135,64 +136,63 @@ namespace SigmaSeries.Plugins
             float trueERange = target.BoundingRadius + W.Range;
 
             float dist = Player.Distance(target);
-            Vector2 dashPos = new Vector2();
+            var dashPos = new Vector2();
             if (target.IsMoving)
             {
                 Vector2 tpos = target.Position.To2D();
                 Vector2 path = target.Path[0].To2D() - tpos;
                 path.Normalize();
-                dashPos = tpos + (path * 100);
+                dashPos = tpos + (path*100);
             }
             float targ_ms = (target.IsMoving && Player.Distance(dashPos) > dist) ? target.MoveSpeed : 0;
             float msDif = (Player.MoveSpeed - targ_ms) == 0 ? 0.0001f : (Player.MoveSpeed - targ_ms);
-            float timeToReach = (dist - trueAARange) / msDif;
-            //Console.WriteLine(timeToReach);
-            if (dist > trueAARange && dist < trueERange)
+            float timeToReach = (dist - trueAARange)/msDif;
+            if (dist > trueAARange && dist < trueERange && timeToReach > 1.7f ||
+                dist > trueAARange && dist < trueERange && timeToReach < 0.0f)
             {
-                if (timeToReach > 1.7f || timeToReach < 0.0f)
-                {
-                    W.Cast();
-                }
+                W.Cast();
             }
-
         }
 
         private void waveClear()
         {
             var useE = Config.Item("useEWC").GetValue<bool>();
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            
+            List<Obj_AI_Base> jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range,
+                MinionTypes.All);
+
             if (jungleMinions.Count > 0)
             {
-                foreach (var minion in jungleMinions)
+                foreach (Obj_AI_Base minion in jungleMinions)
                 {
                     if (minion.IsValidTarget(E.Range) && E.IsReady() && useE)
                     {
-                        var ePoint = E.GetCircularFarmLocation(jungleMinions);
+                        MinionManager.FarmLocation ePoint = E.GetCircularFarmLocation(jungleMinions);
                         E.Cast(ePoint.Position, true);
                     }
                 }
-
             }
         }
+
         private void freeze()
         {
         }
+
         private void jungle()
         {
             var useQ = Config.Item("UseQJung").GetValue<bool>();
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, 800, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+            List<Obj_AI_Base> jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, 800,
+                MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
             if (jungleMinions.Count > 0)
             {
-                if (getHPSliderEqual("minQHPJung", Player) && Q.IsReady())
+                if (GetHpSliderEqual("minQHPJung", Player) && Q.IsReady())
                 {
                     Q.Cast(Player.Position, true);
                 }
             }
         }
 
-        private bool getHPSliderEqual(String s, Obj_AI_Base unit)
+        private bool GetHpSliderEqual(String s, Obj_AI_Base unit)
         {
             return Config.Item(s).GetValue<Slider>().Value >= ((unit.Health/unit.MaxHealth)*100);
         }

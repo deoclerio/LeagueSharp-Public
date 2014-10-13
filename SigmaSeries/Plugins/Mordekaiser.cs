@@ -1,32 +1,22 @@
 ﻿using System;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
 namespace SigmaSeries.Plugins
 {
-    public class Fizz : PluginBase
+    public class Mordekaiser : PluginBase
     {
-        public Fizz()
+        public Mordekaiser()
             : base(new Version(0, 1, 1))
         {
-            Q = new Spell(SpellSlot.Q, 560);
-            W = new Spell(SpellSlot.W, 0);
-            E = new Spell(SpellSlot.E, 370);
-            E2 = new Spell(SpellSlot.E, 370);
-            R = new Spell(SpellSlot.R, 1275);
-
-            E.SetSkillshot(0.5f, 120, 1300, false, SkillshotType.SkillshotCircle);
-            E2.SetSkillshot(0.5f, 400, 1300, false, SkillshotType.SkillshotCircle);
-            R.SetSkillshot(0.5f, 250f, 1200f, false, SkillshotType.SkillshotLine);
-            UseEAgain = true;
+            Q = new Spell(SpellSlot.Q, 0);
+            W = new Spell(SpellSlot.W, 700);
+            E = new Spell(SpellSlot.E, 670);
+            R = new Spell(SpellSlot.R, 850);
         }
 
-        public static Spell E2;
         public static bool packetCast;
-
-        public static Spellbook spellBook = ObjectManager.Player.Spellbook;
-        public static SpellDataInst eSpell = spellBook.GetSpell(SpellSlot.E);
-        public static bool UseEAgain;
 
 
         public override void ComboMenu(Menu config)
@@ -34,7 +24,8 @@ namespace SigmaSeries.Plugins
             config.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             config.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             config.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
-            config.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+            config.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(false));
+            config.AddItem(new MenuItem("controlMinion", "Control the Minion").SetValue(true));
             config.AddItem(new MenuItem("forceR", "Force R Cast").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
         }
 
@@ -49,7 +40,7 @@ namespace SigmaSeries.Plugins
         {
             config.AddItem(new MenuItem("useQFarm", "Q").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 1)));
             config.AddItem(new MenuItem("useWFarm", "W").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 3)));
-            config.AddItem(new MenuItem("UseEWC", "Use E WC").SetValue(true));
+            config.AddItem(new MenuItem("useEFarm", "E").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 3)));
             config.AddItem(new MenuItem("JungleActive", "Jungle Clear!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
             config.AddItem(new MenuItem("UseQJung", "Use Q").SetValue(false));
             config.AddItem(new MenuItem("UseWJung", "Use W").SetValue(true));
@@ -63,12 +54,12 @@ namespace SigmaSeries.Plugins
 
         public override void OnUpdate(EventArgs args)
         {
-                var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            packetCast = Config.Item("packetCast").GetValue<bool>();
+            var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
             if ((Config.Item("forceR").GetValue<KeyBind>().Active) && target != null)
             {
-                R.Cast(target, true);
+                R.CastOnUnit(target, true);
             }
-            
             if (ComboActive)
             {
                 Combo();
@@ -97,71 +88,63 @@ namespace SigmaSeries.Plugins
             var useW = Config.Item("UseWCombo").GetValue<bool>();
             var useE = Config.Item("UseECombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
-            var target = SimpleTs.GetTarget(800, SimpleTs.DamageType.Magical);
-            if (target != null)
+            var useRCon = Config.Item("controlMinion").GetValue<bool>();
+            var Target = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Magical);
+            if (Target != null)
             {
-                if (target.IsValidTarget(Q.Range) && useQ && Q.IsReady())
+                if (Player.HasBuff("MordekaiserCOTGSelf") && useRCon)
                 {
-                    Q.CastOnUnit(target, packetCast);
-                    return;
-                }
-                castItems(target);
-                if (target.IsValidTarget(R.Range) && useR && R.IsReady())
-                {
-                    R.Cast(target, true);
-                }
-                if (target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
-                {
-                    W.Cast(Game.CursorPos, packetCast);
-                    return;
-                }
-                if (target.IsValidTarget(800) && useE && E.IsReady() && UseEAgain)
-                {
-                    if (target.IsValidTarget(370 + 250) && eSpell.Name == "FizzJump")
+                    var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy select champ).ToList();
+                    nearChamps.OrderBy(x => Player.Position.Distance(x.ServerPosition));
+                    if (nearChamps.Count > 0)
                     {
-                        E.Cast(target, true);
-                        UseEAgain = false;
-                        Utility.DelayAction.Add(250, () => UseEAgain = true);
+                        R.Cast(nearChamps.First().ServerPosition, packetCast);
                     }
-                    if (target.IsValidTarget(370 + 150) && target.IsValidTarget(330) == false && eSpell.Name == "fizzjumptwo")
+                    else
                     {
-                        E.Cast(target, true);
+                        R.Cast(Game.CursorPos, packetCast);
                     }
                 }
-                
+                if (R.GetDamage(Target) > Target.Health && useR)
+                {
+                    R.CastOnUnit(Target);
+                }
+                if (Orbwalking.InAutoAttackRange(Target) && useQ && Q.IsReady())
+                {
+                    Q.Cast();
+                    return;
+                }
+                if (W.IsReady() && useW && wCast(Target))
+                {
+                    return;
+                }
+                if (Player.Distance(Target) < E.Range && useE && E.IsReady())
+                {
+                    E.Cast(Target.Position, packetCast);
+                }
             }
         }
+
         private void Harass()
         {
             var useQ = Config.Item("UseQHarass").GetValue<bool>();
             var useW = Config.Item("UseWHarass").GetValue<bool>();
             var useE = Config.Item("UseEHarass").GetValue<bool>();
-            var target = SimpleTs.GetTarget(800, SimpleTs.DamageType.Magical);
-
-            if (target != null)
+            var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            if (Target != null)
             {
-                if (target.IsValidTarget(Q.Range) && useQ && Q.IsReady())
+                if (Orbwalking.InAutoAttackRange(Target) && useQ && Q.IsReady())
                 {
-                    Q.CastOnUnit(target, packetCast);
+                    Q.Cast();
                     return;
                 }
-                if (target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
+                if (W.IsReady() && useW && wCast(Target))
                 {
-                    W.Cast(Game.CursorPos, packetCast);
                     return;
                 }
-                if (target.IsValidTarget(800) && useE && E.IsReady() && UseEAgain)
+                if (Player.Distance(Target) < E.Range && useE && E.IsReady())
                 {
-                    if (target.IsValidTarget(370 + 330) && eSpell.Name == "FizzJump")
-                    {
-                        E.Cast(target, true);
-                        UseEAgain = false;
-                        Utility.DelayAction.Add(250, () => UseEAgain = true);
-                    }
-                    if (target.IsValidTarget(370 + 270) && target.IsValidTarget(330) == false && eSpell.Name == "fizzjumptwo")
-                    {
-                        E.Cast(target, true);
-                    }
+                    E.Cast(Target.Position, packetCast);
                 }
             }
         }
@@ -170,47 +153,56 @@ namespace SigmaSeries.Plugins
         {
             var useQ = Config.Item("useQFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useQFarm").GetValue<StringList>().SelectedIndex == 2;
             var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
-            var useE = Config.Item("UseEWC").GetValue<bool>();
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range);
-            
+            var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
+            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
             if (jungleMinions.Count > 0)
             {
                 foreach (var minion in jungleMinions)
                 {
-                    if (minion.IsValidTarget(E.Range) && E.IsReady() && useE && eSpell.Name == "FizzJump")
+                    if (Q.IsReady() && useQ)
                     {
-                        var ePoint = E.GetCircularFarmLocation(jungleMinions);
-                        E.Cast(ePoint.Position, true);
+                        Q.Cast(Player.Position, packetCast);
+                        return;
                     }
-                    if (minion.IsValidTarget(Q.Range) && useQ && Q.IsReady() && Q.GetDamage(minion) > minion.Health)
+                    if (E.IsReady() && useE)
                     {
-                        Q.CastOnUnit(minion, packetCast);
+                        E.Cast(minion.Position, packetCast);
+                        return;
                     }
-                    if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
+                    if (W.IsReady() && useW)
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player);
+                        return;
                     }
                 }
-
             }
         }
         private void Freeze()
-        {            
+        {
+
             var useQ = Config.Item("useQFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useQFarm").GetValue<StringList>().SelectedIndex == 2;
-            var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2; 
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range);
+            var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
+            var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
+            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
 
             if (jungleMinions.Count > 0)
             {
                 foreach (var minion in jungleMinions)
                 {
-                    if (minion.IsValidTarget(Q.Range) && useQ && Q.IsReady() && Q.GetDamage(minion) > minion.Health)
+                    if (Q.IsReady() && useQ)
                     {
-                        Q.CastOnUnit(minion, packetCast);
+                        Q.Cast(Player.Position, packetCast);
+                        return;
                     }
-                    if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
+                    if (E.IsReady() && useE)
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        E.Cast(minion.Position, packetCast);
+                        return;
+                    }
+                    if (W.IsReady() && useW)
+                    {
+                        W.CastOnUnit(Player);
+                        return;
                     }
                 }
             }
@@ -226,22 +218,42 @@ namespace SigmaSeries.Plugins
             {
                 foreach (var minion in jungleMinions)
                 {
-                    if (minion.IsValidTarget(E.Range) && E.IsReady() && eSpell.Name == "FizzJump" && useE)
+                    if (Q.IsReady() && useQ)
                     {
-                        E.Cast(minion);
+                        Q.Cast(Player.Position, packetCast);
+                        return;
                     }
-                    if (minion.IsValidTarget(Q.Range) && useQ && Q.IsReady())
+                    if (E.IsReady() && useE)
                     {
-                        Q.CastOnUnit(minion, packetCast);
+                        E.Cast(minion.Position, packetCast);
+                        return;
                     }
-                    if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
+                    if (W.IsReady() && useW)
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player);
+                        return;
                     }
                 }
             }
         }
 
-
+        public bool wCast(Obj_AI_Base wTarget)
+        {
+            if (Player.Distance(wTarget) < Orbwalking.GetRealAutoAttackRange(Player))
+            {
+                W.Cast(Player);
+                return true;
+            }
+            var allies = (from champs in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champs) < W.Range && champs.IsAlly select champs).ToList();
+            foreach (var ally in allies)
+            {
+                if (ally.Distance(wTarget) < Orbwalking.GetRealAutoAttackRange(Player))
+                {
+                    W.Cast(ally, packetCast);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

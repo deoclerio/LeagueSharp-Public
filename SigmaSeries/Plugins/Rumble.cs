@@ -334,7 +334,6 @@ namespace SigmaSeries.Plugins
 
             if (bestChamp != null)
             {
-                Game.PrintChat((maxCount).ToString());
                 castR2(R.GetPrediction(rTarget).CastPosition, R.GetPrediction(bestChamp).CastPosition);
             }
             

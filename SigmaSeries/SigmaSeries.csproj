@@ -73,10 +73,12 @@
     <Compile Include="Plugins\FiddleSticks.cs" />
     <Compile Include="Plugins\Fizz.cs" />
     <Compile Include="Plugins\Hecarim.cs" />
+    <Compile Include="Plugins\Mordekaiser.cs" />
     <Compile Include="Plugins\Rengar.cs" />
     <Compile Include="Plugins\Rumble.cs" />
     <Compile Include="Plugins\Singed.cs" />
     <Compile Include="Plugins\Tryndamere.cs" />
+    <Compile Include="Plugins\Varus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

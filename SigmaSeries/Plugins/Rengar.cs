@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
-using System.Threading.Tasks;
 using SharpDX;
 
 namespace SigmaSeries.Plugins
 {
     public class Rengar : PluginBase
     {
-        public static Items.Item HDR;
-        public static Items.Item TMT;
 
         public Rengar()
             : base(new Version(0, 1, 1))
