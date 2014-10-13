@@ -117,7 +117,7 @@ namespace SigmaSeries.Plugins
                 }
                 if (R.IsReady() && useR && Q.IsCharging == false)
                 {
-                    R.Cast();
+                    R.Cast(Target, true);
                 }
             }
         }
