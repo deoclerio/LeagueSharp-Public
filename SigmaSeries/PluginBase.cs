@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using LX_Orbwalker;
 
 namespace SigmaSeries
 {
     public abstract class PluginBase
     {
         public string ChampName { get; set; }
-        public Orbwalking.Orbwalker Orbwalker { get; set; }
         public Version Version { get; set; }
-        public bool ComboActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo; } }
-        public bool HarassActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed; } }
-        public bool WaveClearActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear; } }
-        public bool JungleActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear; } }
-        public bool FreezeActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit; } }
+        public bool ComboActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Combo; } }
+        public bool HarassActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Harass; } }
+        public bool WaveClearActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneClear; } }
+        public bool FleeActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Flee; } }
+        public bool FreezeActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneFreeze; } }
         public Obj_AI_Hero Player { get { return ObjectManager.Player; } }
         public Spell Q { get; set; }
         public Spell W { get; set; }
@@ -105,7 +105,7 @@ namespace SigmaSeries
             Orbwalking.BeforeAttack += BeforeAttack;
             Orbwalking.AfterAttack += AfterAttack;
             AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
-            Interrupter.OnPossibleToInterrupt += OnPossibleToInterrupt;
+            Interrupter.OnPossibleToInterrupt +=Interrupter_OnPossibleToInterrupt;
         }
 
         private void extraEvents()
@@ -174,7 +174,7 @@ namespace SigmaSeries
 
         public void addOW()
         {
-            Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
+            LXOrbwalker.AddToMenu(Config.SubMenu("Orbwalking"));
         }
         public virtual void ComboMenu(Menu config)
         {
@@ -220,7 +220,7 @@ namespace SigmaSeries
         public virtual void OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
         }
-        public virtual void OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        public virtual void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
         }
 

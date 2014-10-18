@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using LX_Orbwalker;
+
 
 namespace SigmaSeries.Plugins
 {
@@ -20,6 +22,27 @@ namespace SigmaSeries.Plugins
             R = new Spell(SpellSlot.R, 1350);
 
             R.SetSkillshot(0.5f, 200f, 1200f, false, SkillshotType.SkillshotLine);
+
+            Obj_AI_Base.OnProcessSpellCast +=Obj_AI_Base_OnProcessSpellCast;
+
+        }
+
+        private void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender.IsAlly || Player.Distance(sender) > 600 || sender.IsMinion) return;
+            foreach (var spell in Interrupter.Spells)
+            {
+                if (args.SData.Name == spell.SpellName)
+                {
+                    if (Config.Item(args.SData.Name).GetValue<bool>())
+                    {
+                        E.Cast();
+                        Player.IssueOrder(GameObjectOrder.AttackUnit, sender);
+                        break;
+                    }
+
+                }
+            }
         }
 
         public static bool packetCast;
@@ -29,6 +52,7 @@ namespace SigmaSeries.Plugins
         {
             config.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             config.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
+            config.AddItem(new MenuItem("wHP", "W HP").SetValue(new Slider(40, 1)));
             config.AddItem(new MenuItem("UseRCombo", "Use R!").SetValue(false));
         }
 
@@ -40,9 +64,13 @@ namespace SigmaSeries.Plugins
 
         public override void FarmMenu(Menu config)
         {
-            config.AddItem(new MenuItem("useQFarm", "Q").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 1)));
-            config.AddItem(new MenuItem("useWFarm", "W").SetValue(new StringList(new[] { "Freeze", "WaveClear", "Both", "None" }, 3)));
-            config.AddItem(new MenuItem("JungleActive", "Jungle Clear!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+            config.AddItem(
+                new MenuItem("useQFarm", "Q").SetValue(new StringList(new[] {"Freeze", "WaveClear", "Both", "None"}, 1)));
+            config.AddItem(
+                new MenuItem("useWFarm", "W").SetValue(new StringList(new[] {"Freeze", "WaveClear", "Both", "None"}, 3)));
+            config.AddItem(
+                new MenuItem("JungleActive", "Jungle Clear!").SetValue(new KeyBind("C".ToCharArray()[0],
+                    KeyBindType.Press)));
             config.AddItem(new MenuItem("UseQJung", "Use Q").SetValue(false));
             config.AddItem(new MenuItem("UseWJung", "Use W").SetValue(true));
         }
@@ -50,10 +78,31 @@ namespace SigmaSeries.Plugins
         public override void BonusMenu(Menu config)
         {
             config.AddItem(new MenuItem("packetCast", "Packet Cast").SetValue(true));
+            Utility.DelayAction.Add(1000, () => actiontobedelayed(config));
         }
+
+        private void actiontobedelayed(Menu config)
+        {
+            config.AddItem(new MenuItem("--", "--"));
+            config.AddItem(new MenuItem("Interrupter", "Interrupter"));
+            foreach (var interrupter in Interrupter.Spells)
+            {
+                config.AddItem(
+                    new MenuItem(interrupter.SpellName, interrupter.ChampionName + ": " + interrupter.SpellName)
+                        .SetValue(true));
+            }
+        }
+
+        public override void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        {
+            Game.PrintChat(unit.Name);
+        }
+
+        
 
         public override void OnUpdate(EventArgs args)
         {
+            
             if (ComboActive)
             {
                 combo();
@@ -73,6 +122,10 @@ namespace SigmaSeries.Plugins
             if (Config.Item("JungleActive").GetValue<KeyBind>().Active)
             {
                 jungle();
+            }
+            if (FleeActive && E.IsReady())
+            {
+                E.CastOnUnit(Player, true);
             }
         }
 
@@ -97,7 +150,6 @@ namespace SigmaSeries.Plugins
                 if (Target.IsValidTarget(W.Range) && useW && W.IsReady())
                 {
                     W.Cast(Game.CursorPos, packetCast);
-                    return;
                 }
             }
         }

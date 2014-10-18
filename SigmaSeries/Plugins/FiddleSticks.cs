@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LX_Orbwalker;
+
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -29,8 +31,8 @@ namespace SigmaSeries.Plugins
             if (sender.Name == Player.Name && args.SData.Name == "Drain")
             {
                 newTime = Game.Time + 1f;
-                Orbwalker.SetMovement(false);
-                Orbwalker.SetAttacks(false);
+                LX_Orbwalker.LXOrbwalker.SetMovement(false);
+                LX_Orbwalker.LXOrbwalker.SetAttack(false);
             }
         }
 
@@ -80,14 +82,14 @@ namespace SigmaSeries.Plugins
 
             if (Player.HasBuff("Drain"))
             {
-                Orbwalker.SetMovement(false);
-                Orbwalker.SetAttacks(false);
+                LX_Orbwalker.LXOrbwalker.SetMovement(false);
+                LX_Orbwalker.LXOrbwalker.SetAttack(false);
             }
             if (!Player.HasBuff("Drain") && newTime < Game.Time)
             {
                 count = 0;
-                Orbwalker.SetMovement(true);
-                Orbwalker.SetAttacks(true);
+                LX_Orbwalker.LXOrbwalker.SetMovement(true);
+                LX_Orbwalker.LXOrbwalker.SetAttack(false);
             }
             if (ComboActive)
             {

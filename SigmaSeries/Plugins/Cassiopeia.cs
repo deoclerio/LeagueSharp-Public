@@ -5,6 +5,8 @@ using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
 using System.Threading.Tasks;
+using LX_Orbwalker;
+
 
 namespace SigmaSeries.Plugins
 {
@@ -13,7 +15,6 @@ namespace SigmaSeries.Plugins
         public Cassiopeia()
             : base(new Version(0, 1, 1))
         {
-            
             Q = new Spell(SpellSlot.Q, 925);
             W = new Spell(SpellSlot.W, 925);
             E = new Spell(SpellSlot.E, 700);
@@ -23,6 +24,8 @@ namespace SigmaSeries.Plugins
             W.SetSkillshot(0.5f, 212, 2500, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(0.5f, 210, float.MaxValue, false, SkillshotType.SkillshotCone);
         }
+
+        public bool delayed;
 
         public override void ComboMenu(Menu config)
         {
@@ -86,6 +89,7 @@ namespace SigmaSeries.Plugins
                     }
                 }
             }
+          
 
             if (HarassActive)
             {
@@ -141,7 +145,7 @@ namespace SigmaSeries.Plugins
                 {
                     var predHP = HealthPrediction.GetHealthPrediction(minion, (int)E.Delay);
 
-                    if (E.GetDamage(minion) > minion.Health && predHP > 0 && minion.IsValidTarget(E.Range))
+                    if (E.GetDamage(minion) > minion.Health && predHP > 0 && minion.IsValidTarget(E.Range) && useE)
                     {
                         E.CastOnUnit(minion, true);
                     }
@@ -160,17 +164,17 @@ namespace SigmaSeries.Plugins
             {
                 foreach (var minion in minions)
                 {
-                    if (minion.HasBuffOfType(BuffType.Poison) && minion.IsValidTarget(E.Range))
+                    if (minion.HasBuffOfType(BuffType.Poison) && minion.IsValidTarget(E.Range) && useE)
                     {
                         E.CastOnUnit(minion, true);
                     }
 
-                    if (minion.IsValidTarget(Q.Range))
+                    if (minion.IsValidTarget(Q.Range) && useQ)
                     {
                         Q.Cast(minion, true);
                     }
 
-                    if (minion.IsValidTarget(Q.Range))
+                    if (minion.IsValidTarget(W.Range) && useW)
                     {
                         W.Cast(minion, true);
                     }
