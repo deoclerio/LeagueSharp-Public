@@ -25,7 +25,6 @@ namespace SigmaSeries.Plugins
 
         public static bool packetCast;
         public string buffName = "DariusHemo";
-        public int rDMG;
       
 
         public override void ComboMenu(Menu config)
@@ -33,6 +32,7 @@ namespace SigmaSeries.Plugins
             config.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             config.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             config.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+            config.AddItem(new MenuItem("eRangeCheck", "Only E if outside of AA Range").SetValue(true));
             config.AddItem(new MenuItem("UseRCombo", "Use R TO DUNK!").SetValue(true));
             config.AddItem(new MenuItem("rKS", "(KS) Use R TO DUNK EVERYTHING").SetValue(false));
         }
@@ -100,7 +100,7 @@ namespace SigmaSeries.Plugins
             {
                 if (buff.DisplayName == buffName && buff.Count > 1)
                 {
-                    return R.GetDamage(target) * (1 + buff.Count / 5) - 1;
+                    return R.GetDamage(target) * (1 + buff.Count / 5);
                 }
             }
             return R.GetDamage(target);
@@ -112,6 +112,7 @@ namespace SigmaSeries.Plugins
             var useW = Config.Item("UseWCombo").GetValue<bool>();
             var useE = Config.Item("UseECombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
+            var e2 = Config.Item("eRangeCheck").GetValue<bool>();
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             if (Target != null)
             {
@@ -124,7 +125,7 @@ namespace SigmaSeries.Plugins
                         }
                 }
 
-                if (Player.Distance(Target) < E.Range && useE && E.IsReady())
+                if (Player.Distance(Target) < E.Range && useE && E.IsReady() && !e2 || Player.Distance(Target) < E.Range && useE && e2 && E.IsReady() && Player.Distance(Target) > 450)
                 {
                     E.Cast(Target, packetCast);
                     return;
@@ -147,9 +148,10 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQHarass").GetValue<bool>();
             var useW = Config.Item("UseWHarass").GetValue<bool>();
             var useE = Config.Item("UseEHarass").GetValue<bool>();
+            var e2 = Config.Item("eRangeCheck").GetValue<bool>();
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
-            if (Player.Distance(Target) < E.Range && useE && E.IsReady())
+            if (Player.Distance(Target) < E.Range && useE && E.IsReady() && !e2 || Player.Distance(Target) < E.Range && useE && e2 && E.IsReady() && Player.Distance(Target) > 480)
             {
                 E.Cast(Target, packetCast);
                 return;
