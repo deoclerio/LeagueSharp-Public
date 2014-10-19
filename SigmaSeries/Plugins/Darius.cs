@@ -125,7 +125,7 @@ namespace SigmaSeries.Plugins
                         }
                 }
 
-                if (Player.Distance(Target) < E.Range && useE && E.IsReady() && !e2 || Player.Distance(Target) < E.Range && useE && e2 && E.IsReady() && Player.Distance(Target) > 450)
+                if (Player.Distance(Target) < E.Range && useE && E.IsReady() && !e2 || Player.Distance(Target) < E.Range && useE && e2 && E.IsReady() && Player.Distance(Target) > 430)
                 {
                     E.Cast(Target, packetCast);
                     return;
@@ -150,22 +150,25 @@ namespace SigmaSeries.Plugins
             var useE = Config.Item("UseEHarass").GetValue<bool>();
             var e2 = Config.Item("eRangeCheck").GetValue<bool>();
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-
-            if (Player.Distance(Target) < E.Range && useE && E.IsReady() && !e2 || Player.Distance(Target) < E.Range && useE && e2 && E.IsReady() && Player.Distance(Target) > 480)
+            if (Target != null)
             {
-                E.Cast(Target, packetCast);
-                return;
-            }
-            castItems(Target);
-            if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
-            {
-                Q.Cast(Game.CursorPos, packetCast);
-                return;
-            }
-            if (Player.Distance(Target) < Orbwalking.GetRealAutoAttackRange(Player) && useW && W.IsReady())
-            {
-                W.Cast(Target, packetCast);
-                return;
+                if (Player.Distance(Target) < E.Range && useE && E.IsReady() && !e2 ||
+                    Player.Distance(Target) < E.Range && useE && e2 && E.IsReady() && Player.Distance(Target) > 430)
+                {
+                    E.Cast(Target, packetCast);
+                    return;
+                }
+                castItems(Target);
+                if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
+                {
+                    Q.Cast(Game.CursorPos, packetCast);
+                    return;
+                }
+                if (Player.Distance(Target) < Orbwalking.GetRealAutoAttackRange(Player) && useW && W.IsReady())
+                {
+                    W.Cast(Target, packetCast);
+                    return;
+                }
             }
         }
 
