@@ -23,17 +23,15 @@ namespace SigmaSeries.Plugins
             R.SetSkillshot(0.25f, 100f, 1950f, false, SkillshotType.SkillshotLine);
             Q.SetCharged("VarusQ", "VarusQ", 1100, 1450, 1.3f);
 
-            Orbwalking.BeforeAttack +=Orbwalking_BeforeAttack;
             GameObject.OnCreate += OnCreate;
-        
+            LXOrbwalker.BeforeAttack += Orbwalking_BeforeAttack;
         }
-
 
         public static Spellbook spellBook = ObjectManager.Player.Spellbook;
         public static SpellDataInst wSpell = spellBook.GetSpell(SpellSlot.W);
         
 
-        void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        void Orbwalking_BeforeAttack(LXOrbwalker.BeforeAttackEventArgs args)
         {
                 args.Process = !Q.IsCharging;
         }
@@ -122,23 +120,26 @@ namespace SigmaSeries.Plugins
         {
             
             var Target = SimpleTs.GetTarget(1600, SimpleTs.DamageType.Magical);
-            tickTask();
-            var qMin = hero[hero.FindIndex(x => x.netID == Target.NetworkId)].stacks >=
-                       Config.Item("minQ").GetValue<Slider>().Value;
-            var wMin = hero[hero.FindIndex(x => x.netID == Target.NetworkId)].stacks >=
-                       Config.Item("minE").GetValue<Slider>().Value;
-            var useQ = Config.Item("UseQCombo").GetValue<bool>();
-            var useE = Config.Item("UseECombo").GetValue<bool>();
-            var useR = Config.Item("UseRCombo").GetValue<bool>();
-            
+            if (Q.IsCharging)
+            {
+                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            }
             if (Target != null)
             {
+                tickTask();
+                var qMin = hero[hero.FindIndex(x => x.netID == Target.NetworkId)].stacks >=
+                           Config.Item("minQ").GetValue<Slider>().Value;
+                var wMin = hero[hero.FindIndex(x => x.netID == Target.NetworkId)].stacks >=
+                           Config.Item("minE").GetValue<Slider>().Value;
+                var useQ = Config.Item("UseQCombo").GetValue<bool>();
+                var useE = Config.Item("UseECombo").GetValue<bool>();
+                var useR = Config.Item("UseRCombo").GetValue<bool>();
+
                 if (Q.IsReady() && useQ)
                 {
                     if (Q.IsCharging)
                     {
                         Q.Cast(Target, true);
-                        Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 						return;
                     }
                     if (!Q.IsCharging && qMin || !Q.IsCharging && wSpell.Level == 0)
@@ -254,7 +255,7 @@ namespace SigmaSeries.Plugins
             public int stacks { set; get; }
         }
 
-        private void OnCreate(LeagueSharp.GameObject value0, System.EventArgs value1)
+        private void OnCreate(GameObject value0, EventArgs value1)
         {
             if (value0.Name.ToLower().IndexOf("varusw") == -1) { return; }
             foreach (Obj_AI_Hero hero2 in ObjectManager.Get<Obj_AI_Hero>())
