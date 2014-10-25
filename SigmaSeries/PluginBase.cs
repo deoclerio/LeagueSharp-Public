@@ -39,6 +39,7 @@ namespace SigmaSeries
 
         public void castItems(Obj_AI_Base target, bool isMinion = false)
         {
+            return;
             if (isMinion)
             {
                 if (Player.Distance(target) <= Hydra.Range && Config.Item("hdr").GetValue<bool>())

@@ -107,7 +107,7 @@ namespace SigmaSeries.Plugins
                     Q.CastOnUnit(target, packetCast);
                     return;
                 }
-                castItems(target);
+                //castItems(target);
                 if (target.IsValidTarget(R.Range) && useR && R.IsReady())
                 {
                     R.Cast(target, true);

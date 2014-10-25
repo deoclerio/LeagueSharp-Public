@@ -18,7 +18,8 @@ namespace SigmaSeries.Plugins
             W = new Spell(SpellSlot.W, 500);
             E = new Spell(SpellSlot.E, 1000);
             R = new Spell(SpellSlot.R, 0);
-
+            Q.SetTargetted(0.5f, 10000);
+            W.SetTargetted(0.5f, 10000);
             E.SetSkillshot(0.5f, 70, 1500, true, SkillshotType.SkillshotLine);
         }
 
@@ -66,17 +67,6 @@ namespace SigmaSeries.Plugins
             config.AddItem(new MenuItem("ej", "E").SetValue(false));
         }
 
-        public override void OnDraw(EventArgs args)
-        {
-            foreach (var spell in SpellList)
-            {
-                var getMenu = Config.Item(spell.Slot + "Range" + ChampName).GetValue<Circle>();
-                if (getMenu.Active && spell.IsReady())
-                {
-                    Drawing.DrawCircle(Player.Position, spell.Range, getMenu.Color);
-                }
-            }
-        }
 
         public override void BonusMenu(Menu config)
         {
@@ -86,8 +76,6 @@ namespace SigmaSeries.Plugins
 
         public override void OnUpdate(EventArgs args)
         {
-            
-
             if (Config.Item("tripleQ").GetValue<KeyBind>().Active)
             {
                 combo(true);
@@ -139,11 +127,11 @@ namespace SigmaSeries.Plugins
                 {
                     if (eTarget.IsValidTarget(W.Range) && W.IsReady() && useW && Player.Mana > 5 || eTarget.IsValidTarget(W.Range) && W.IsReady() && useW && stackPrior == 1)
                     {
-                        W.Cast(Game.CursorPos, pCast);
+                        W.CastOnUnit(Player, pCast);;
                         return;
                     }
                 }
-                castItems(eTarget);
+                //castItems(eTarget);
             }
         }
 
@@ -160,6 +148,8 @@ namespace SigmaSeries.Plugins
             var stackPrior = Config.Item("stackPriority").GetValue<StringList>().SelectedIndex;
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
             var aaTarget = SimpleTs.GetTarget(Orbwalking.GetRealAutoAttackRange(Player) + 200, SimpleTs.DamageType.Physical);
+
+            
             if (eTarget != null)
             {
                 if (is3Q)
@@ -170,29 +160,26 @@ namespace SigmaSeries.Plugins
                 {
                     if (smartW && Player.Health / Player.MaxHealth * 100 < smartHP)
                     {
-                        W.Cast(Game.CursorPos, pCast);
-                        return;
+                        W.CastOnUnit(Player, pCast);;
                     }
-                    if (smartQ && Player.Distance(eTarget) <= Orbwalking.GetRealAutoAttackRange(Player))
+                    else if (smartQ && Player.Distance(eTarget) <= 300)
                     {
-                        Q.Cast(Game.CursorPos, pCast);
-                        return;
+                        Q.CastOnUnit(Player, pCast);;
                     }
-                    if (smartE && Player.Distance(eTarget) > Orbwalking.GetRealAutoAttackRange(Player))
+                    else if (smartE && Player.Distance(eTarget) > Orbwalking.GetRealAutoAttackRange(Player))
                     {
                         E.Cast(eTarget, true);
-                        return;
                     }
                 }
                 var useQ = Config.Item("UseQCombo").GetValue<bool>();
                 if (Q.IsReady())
                 {
-                    if (Player.Distance(eTarget) < Orbwalking.GetRealAutoAttackRange(Player))
+                    if (eTarget.IsValidTarget(LXOrbwalker.GetAutoAttackRange(eTarget)))
                     {
                         if (Q.IsReady() && Player.Mana < 5 && useQ || Q.IsReady() && stackPrior == 0 && useQ && !smartMode || Q.IsReady() && is3Q)
                         {
-                            Q.Cast(Game.CursorPos, pCast);
-                            return;
+                            Game.PrintChat("Q Cast!");
+                            Q.CastOnUnit(Player, pCast);;
                         }
                     }
                 }
@@ -201,18 +188,15 @@ namespace SigmaSeries.Plugins
                     if (eTarget.IsValidTarget(E.Range) && E.IsReady() && useE && Player.Mana < 5 || eTarget.IsValidTarget(E.Range) && E.IsReady() && useE && stackPrior == 2 && !smartMode && !is3Q)
                     {
                         E.Cast(eTarget, true);
-                        return;
                     }
                 }
                 if (W.IsReady())
                 {
-                    if (Player.Distance(eTarget) < W.Range && W.IsReady() && useW && Player.Mana < 5 || Player.Distance(eTarget) < W.Range && W.IsReady() && useW && stackPrior == 1 && !smartMode && !is3Q)
+                    if (eTarget.IsValidTarget(W.Range) && W.IsReady() && useW && Player.Mana < 5 || Player.Distance(eTarget) < W.Range && W.IsReady() && useW && stackPrior == 1 && !smartMode && !is3Q)
                     {
-                        W.Cast(Game.CursorPos, pCast);
-                        return;
+                        W.CastOnUnit(Player, pCast);
                     }
                 }
-                castItems(eTarget);
             }
 
         }
@@ -231,7 +215,7 @@ namespace SigmaSeries.Plugins
                 {
                     if (Player.Mana < 5 && Q.GetDamage(minion) > minion.Health && minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useQ)
                     {
-                        Q.Cast(Game.CursorPos, pCast);
+                        Q.CastOnUnit(Player, pCast);;
                     }
                 }
                 if (E.IsReady())
@@ -245,7 +229,7 @@ namespace SigmaSeries.Plugins
                 {
                     if (Player.Mana < 5 && W.GetDamage(minion) > minion.Health && useW && minion.IsValidTarget(W.Range))
                     {
-                        W.Cast(Game.CursorPos, pCast);
+                        W.CastOnUnit(Player, pCast);;
                     }
                 }
             }
@@ -276,11 +260,11 @@ namespace SigmaSeries.Plugins
                     {
                         if (Player.Mana < 5)
                         {
-                            W.Cast(Game.CursorPos, pCast);
+                            W.CastOnUnit(Player, pCast);;
                         }
                         else if (Player.Mana == 5 && stackPrior == 1 && stack5)
                         {
-                            W.Cast(Game.CursorPos, pCast);
+                            W.CastOnUnit(Player, pCast);;
                         }
                     }
                 }
@@ -290,15 +274,15 @@ namespace SigmaSeries.Plugins
                     {
                         if (Player.Mana < 5)
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);;
                         }
                         else if (Player.Mana == 5 && stackPrior == 0 && stack5)
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);;
                         }
                     }
                 }
-                castItems(minion);
+                //castItems(minion);
             }
         }
         private void WaveClear()
@@ -326,11 +310,11 @@ namespace SigmaSeries.Plugins
                     {
                         if (Player.Mana < 5 && W.GetDamage(minion) > minion.Health)
                         {
-                            W.Cast(Game.CursorPos, pCast);
+                            W.CastOnUnit(Player, pCast);;
                         }
                         else if (Player.Mana == 5 && stackPrior == 1 && stack5)
                         {
-                            W.Cast(Game.CursorPos, pCast);
+                            W.CastOnUnit(Player, pCast);;
                         }
                     }
                 }
@@ -340,15 +324,15 @@ namespace SigmaSeries.Plugins
                     {
                         if (Player.Mana < 5)
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);;
                         }
                         else if (Player.Mana == 5 && stackPrior == 0 && stack5)
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);;
                         }
                     }
                 }
-                castItems(minion);
+                //castItems(minion);
             }
         }
     }

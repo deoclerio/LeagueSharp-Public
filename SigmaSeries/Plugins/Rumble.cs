@@ -131,15 +131,14 @@ namespace SigmaSeries.Plugins
                     {
                         Q.Cast(Game.CursorPos, true);
                         checkHeat = false;
-                        Utility.DelayAction.Add(200, new Utility.DelayAction.Callback(() => checkHeat = true));
+                        Utility.DelayAction.Add(200, (() => checkHeat = true));
                         return;
                     }
                     if (W.IsReady() && useW)
                     {
-                        W.Cast();
+                        W.CastOnUnit(Player, packetCast);;
                         checkHeat = false;
-                        Utility.DelayAction.Add(200, new Utility.DelayAction.Callback(() => checkHeat = true));
-                        return;
+                        Utility.DelayAction.Add(200, (() => checkHeat = true));
                     }
                 }
             }

@@ -93,7 +93,7 @@ namespace SigmaSeries.Plugins
             Obj_AI_Hero Target = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
             if (Target != null)
             {
-                castItems(Target);
+                //castItems(Target);
                 if (useW && W.IsReady())
                 {
                     if (Player.Distance(Target) < Orbwalking.GetRealAutoAttackRange(Player) && useWF)
@@ -152,7 +152,7 @@ namespace SigmaSeries.Plugins
             if (dist > trueAARange && dist < trueERange && timeToReach > 1.7f ||
                 dist > trueAARange && dist < trueERange && timeToReach < 0.0f)
             {
-                W.Cast();
+                W.CastOnUnit(Player, packetCast);;
             }
         }
 

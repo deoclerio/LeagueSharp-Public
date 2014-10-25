@@ -36,7 +36,7 @@ namespace SigmaSeries.Plugins
                 {
                     if (Config.Item(args.SData.Name).GetValue<bool>())
                     {
-                        E.Cast();
+                        E.CastOnUnit(Player, packetCast);;
                         Player.IssueOrder(GameObjectOrder.AttackUnit, sender);
                         break;
                     }
@@ -142,7 +142,7 @@ namespace SigmaSeries.Plugins
                     Q.Cast(Target, packetCast);
                     return;
                 }
-                castItems(Target);
+                //castItems(Target);
                 if (Target.IsValidTarget(R.Range) && useR && R.IsReady())
                 {
                     R.Cast(Target, packetCast);

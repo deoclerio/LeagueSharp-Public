@@ -130,7 +130,7 @@ namespace SigmaSeries.Plugins
                     E.Cast(Target, packetCast);
                     return;
                 }
-                castItems(Target);
+                //castItems(Target);
                 if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                 {
                     Q.Cast(Game.CursorPos, packetCast);
@@ -158,7 +158,7 @@ namespace SigmaSeries.Plugins
                     E.Cast(Target, packetCast);
                     return;
                 }
-                castItems(Target);
+                //castItems(Target);
                 if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                 {
                     Q.Cast(Game.CursorPos, packetCast);
@@ -182,7 +182,7 @@ namespace SigmaSeries.Plugins
             {
                 foreach (var minion in jungleMinions)
                 {
-                    castItems(minion, true);
+                    //castItems(minion, true);
                     if (Player.Distance(minion) < Q.Range && useQ && Q.IsReady())
                     {
                         Q.Cast(Game.CursorPos, packetCast);
@@ -230,7 +230,7 @@ namespace SigmaSeries.Plugins
             {
                 foreach (var minion in jungleMinions)
                 {
-                    castItems(minion, true);
+                    //castItems(minion, true);
                     if (Player.Distance(minion) < Q.Range && useQ && Q.IsReady())
                     {
                         Q.Cast(Game.CursorPos, packetCast);

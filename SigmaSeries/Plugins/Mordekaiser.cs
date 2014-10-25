@@ -113,7 +113,7 @@ namespace SigmaSeries.Plugins
                 }
                 if (Orbwalking.InAutoAttackRange(Target) && useQ && Q.IsReady())
                 {
-                    Q.Cast();
+                    Q.CastOnUnit(Player, packetCast);;
                     return;
                 }
                 if (W.IsReady() && useW && wCast(Target))
@@ -137,7 +137,7 @@ namespace SigmaSeries.Plugins
             {
                 if (Orbwalking.InAutoAttackRange(Target) && useQ && Q.IsReady())
                 {
-                    Q.Cast();
+                    Q.CastOnUnit(Player, packetCast);;
                     return;
                 }
                 if (W.IsReady() && useW && wCast(Target))
