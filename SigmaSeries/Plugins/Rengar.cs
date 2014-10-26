@@ -178,7 +178,6 @@ namespace SigmaSeries.Plugins
                     {
                         if (Q.IsReady() && Player.Mana < 5 && useQ || Q.IsReady() && stackPrior == 0 && useQ && !smartMode || Q.IsReady() && is3Q)
                         {
-                            Game.PrintChat("Q Cast!");
                             Q.CastOnUnit(Player, pCast);;
                         }
                     }
