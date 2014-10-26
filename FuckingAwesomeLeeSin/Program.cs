@@ -463,7 +463,7 @@ namespace FuckingAwesomeLeeSin
                         }
                     }
                 }
-            }9
+            }
         }
         public static void useItems(Obj_AI_Hero enemy)
         {
