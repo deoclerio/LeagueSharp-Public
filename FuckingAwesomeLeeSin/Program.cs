@@ -54,7 +54,7 @@ namespace FuckingAwesomeLeeSin
 
         static void Game_OnGameLoad(EventArgs args)
         {
-            if (_player.BaseSkinName != ChampName) return;
+            if (_player.ChampionName != ChampName) return;
 
             smiteSlot = _player.GetSpellSlot("SummonerSmite");
 
@@ -436,7 +436,7 @@ namespace FuckingAwesomeLeeSin
                     {
                         minionerimo = minion;
                         if (SmiteDmg() > minion.Health && minion.IsValidTarget(780) && paramBool("normSmite")) _player.SummonerSpellbook.CastSpell(smiteSlot, minion);
-                        if (minion.Distance(_player) < 200 || SmiteDmg() > minion.Health && checkSmite)
+                        if (minion.Distance(_player) < 200 && SmiteDmg() > minion.Health && checkSmite)
                         {
                             _player.SummonerSpellbook.CastSpell(smiteSlot, minion);
                         }
