@@ -98,7 +98,7 @@ namespace SigmaSeries.Plugins
                 {
                     if (Player.Distance(Target) < Orbwalking.GetRealAutoAttackRange(Player) && useWF)
                     {
-                        W.Cast(Player.Position, true);
+                        W.CastOnUnit(Player, packetCast);
                     }
                     else if (useWB)
                     {
@@ -123,7 +123,7 @@ namespace SigmaSeries.Plugins
             }
             if (GetHpSliderEqual("minRHP", Player) && useR && R.IsReady())
             {
-                R.Cast(Player.Position, true);
+                R.CastOnUnit(Player, packetCast);
             }
         }
 

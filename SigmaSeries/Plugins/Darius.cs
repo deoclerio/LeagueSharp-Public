@@ -133,12 +133,12 @@ namespace SigmaSeries.Plugins
                 //castItems(Target);
                 if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                 {
-                    Q.Cast(Game.CursorPos, packetCast);
+                    Q.CastOnUnit(Player, packetCast);
                     return;
                 }
                 if (Player.Distance(Target) < Orbwalking.GetRealAutoAttackRange(Player) && useW && W.IsReady())
                 {
-                    W.Cast(Target, packetCast);
+                    W.CastOnUnit(Player, packetCast);
                     return;
                 }
             }
@@ -161,12 +161,12 @@ namespace SigmaSeries.Plugins
                 //castItems(Target);
                 if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                 {
-                    Q.Cast(Game.CursorPos, packetCast);
+                    Q.CastOnUnit(Player, packetCast);
                     return;
                 }
                 if (Player.Distance(Target) < Orbwalking.GetRealAutoAttackRange(Player) && useW && W.IsReady())
                 {
-                    W.Cast(Target, packetCast);
+                    W.CastOnUnit(Player, packetCast);
                     return;
                 }
             }
@@ -185,12 +185,12 @@ namespace SigmaSeries.Plugins
                     //castItems(minion, true);
                     if (Player.Distance(minion) < Q.Range && useQ && Q.IsReady())
                     {
-                        Q.Cast(Game.CursorPos, packetCast);
+                        Q.CastOnUnit(Player, packetCast);
                         return;
                     }
                     if (Player.Distance(minion) < Orbwalking.GetRealAutoAttackRange(Player) && useW && W.IsReady())
                     {
-                        W.Cast(minion, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                         return;
                     }
                 }
@@ -209,12 +209,12 @@ namespace SigmaSeries.Plugins
                 {
                     if (Player.Distance(minion) < Q.Range && useQ && Q.IsReady())
                     {
-                        Q.Cast(Game.CursorPos, packetCast);
+                        Q.CastOnUnit(Player, packetCast);
                         return;
                     }
                     if (Player.Distance(minion) < Orbwalking.GetRealAutoAttackRange(Player) && useW && W.IsReady())
                     {
-                        W.Cast(minion, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                         return;
                     }
                 }
@@ -233,12 +233,12 @@ namespace SigmaSeries.Plugins
                     //castItems(minion, true);
                     if (Player.Distance(minion) < Q.Range && useQ && Q.IsReady())
                     {
-                        Q.Cast(Game.CursorPos, packetCast);
+                        Q.CastOnUnit(Player, packetCast);
                         return;
                     }
                     if (Player.Distance(minion) < Orbwalking.GetRealAutoAttackRange(Player) && useW && W.IsReady())
                     {
-                        W.Cast(minion, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                         return;
                     }
                 }

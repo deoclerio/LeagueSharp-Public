@@ -139,7 +139,7 @@ namespace SigmaSeries.Plugins
             {
                 if (Target.IsValidTarget(Q.Range) && useQ && Q.IsReady())
                 {
-                    Q.Cast(Target, packetCast);
+                    Q.CastOnUnit(Player, packetCast);
                     return;
                 }
                 //castItems(Target);
@@ -149,7 +149,7 @@ namespace SigmaSeries.Plugins
                 }
                 if (Target.IsValidTarget(W.Range) && useW && W.IsReady())
                 {
-                    W.Cast(Game.CursorPos, packetCast);
+                    W.CastOnUnit(Player, packetCast);
                 }
             }
         }
@@ -165,12 +165,12 @@ namespace SigmaSeries.Plugins
                 {
                     if (Target.IsValidTarget(Q.Range) && useQ && Q.IsReady())
                     {
-                        Q.Cast(Target, packetCast);
+                        Q.CastOnUnit(Player, packetCast);
                         return;
                     }
                     if (Target.IsValidTarget(W.Range) && useW && W.IsReady())
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                         return;
                     }
                 }
@@ -211,11 +211,11 @@ namespace SigmaSeries.Plugins
                 {
                     if (minion.IsValidTarget(Q.Range) && useQ && Q.IsReady() && Q.GetDamage(minion) > minion.Health)
                     {
-                        Q.CastOnUnit(minion, packetCast);
+                        Q.CastOnUnit(Player, packetCast);
                     }
                     if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                     }
                 }
             }
@@ -232,11 +232,11 @@ namespace SigmaSeries.Plugins
                 {
                     if (minion.IsValidTarget(Q.Range) && useQ && Q.IsReady())
                     {
-                        Q.CastOnUnit(minion, packetCast);
+                        Q.CastOnUnit(Player, packetCast);
                     }
                     if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                     }
                 }
             }

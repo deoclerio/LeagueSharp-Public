@@ -114,7 +114,7 @@ namespace SigmaSeries.Plugins
                 }
                 if (target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
                 {
-                    W.Cast(Game.CursorPos, packetCast);
+                    W.CastOnUnit(Player, packetCast);
                     return;
                 }
                 if (target.IsValidTarget(800) && useE && E.IsReady() && UseEAgain)
@@ -149,7 +149,7 @@ namespace SigmaSeries.Plugins
                 }
                 if (target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
                 {
-                    W.Cast(Game.CursorPos, packetCast);
+                    W.CastOnUnit(Player, packetCast);
                     return;
                 }
                 if (target.IsValidTarget(800) && useE && E.IsReady() && UseEAgain)
@@ -190,7 +190,7 @@ namespace SigmaSeries.Plugins
                     }
                     if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                     }
                 }
 
@@ -212,7 +212,7 @@ namespace SigmaSeries.Plugins
                     }
                     if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                     }
                 }
             }
@@ -238,7 +238,7 @@ namespace SigmaSeries.Plugins
                     }
                     if (minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && useW && W.IsReady())
                     {
-                        W.Cast(Game.CursorPos, packetCast);
+                        W.CastOnUnit(Player, packetCast);
                     }
                 }
             }

@@ -73,11 +73,11 @@ namespace SigmaSeries.Plugins
                     {
                         if (Player.HasBuff("Poison Trail"))
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);
                         }
                         if (Player.HasBuff("Poison Trail") == false && useQAgain)
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);
                             useQAgain = false;
                             Utility.DelayAction.Add(delay, () => useQAgain = true);
                         }
@@ -109,11 +109,11 @@ namespace SigmaSeries.Plugins
                     {
                         if (Player.HasBuff("Poison Trail"))
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);
                         }
                         if (Player.HasBuff("Poison Trail") == false && useQAgain)
                         {
-                            Q.Cast(Game.CursorPos, pCast);
+                            Q.CastOnUnit(Player, pCast);
                             useQAgain = false;
                             Utility.DelayAction.Add(delay, () => useQAgain = true);
                         }

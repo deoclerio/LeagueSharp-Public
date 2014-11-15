@@ -290,7 +290,7 @@ namespace SigmaSeries.Plugins
         {
             if (!willOverLoad(false))
             {
-                W.Cast(Game.CursorPos, packetCast);
+                W.CastOnUnit(Player, packetCast);
             }
         }
 
