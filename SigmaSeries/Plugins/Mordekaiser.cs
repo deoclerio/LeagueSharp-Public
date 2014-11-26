@@ -2,7 +2,7 @@
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
+using Version = System.Version;
 
 
 namespace SigmaSeries.Plugins
@@ -214,11 +214,10 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQJung").GetValue<bool>();
             var useW = Config.Item("UseWJung").GetValue<bool>();
             var useE = Config.Item("UseEJung").GetValue<bool>();
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
-            if (jungleMinions.Count > 0)
+            if (JungleMinions.Count > 0)
             {
-                foreach (var minion in jungleMinions)
+                foreach (var minion in JungleMinions)
                 {
                     if (Q.IsReady() && useQ)
                     {

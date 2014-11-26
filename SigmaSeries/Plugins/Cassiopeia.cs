@@ -6,6 +6,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using System.Threading.Tasks;
 using LX_Orbwalker;
+using Version = System.Version;
 
 
 namespace SigmaSeries.Plugins
@@ -160,9 +161,9 @@ namespace SigmaSeries.Plugins
             var useE = Config.Item("UseEJung").GetValue<bool>();
 
             var minions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-            if (minions.Count > 1)
+            if (JungleMinions.Count > 1)
             {
-                foreach (var minion in minions)
+                foreach (var minion in JungleMinions)
                 {
                     if (minion.HasBuffOfType(BuffType.Poison) && minion.IsValidTarget(E.Range) && useE)
                     {

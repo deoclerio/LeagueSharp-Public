@@ -2,7 +2,7 @@
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using LX_Orbwalker;
+using Version = System.Version;
 
 
 namespace SigmaSeries.Plugins
@@ -174,7 +174,7 @@ namespace SigmaSeries.Plugins
                 var useQ = Config.Item("UseQCombo").GetValue<bool>();
                 if (Q.IsReady())
                 {
-                    if (eTarget.IsValidTarget(LXOrbwalker.GetAutoAttackRange(eTarget)))
+                    if (eTarget.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
                     {
                         if (Q.IsReady() && Player.Mana < 5 && useQ || Q.IsReady() && stackPrior == 0 && useQ && !smartMode || Q.IsReady() && is3Q)
                         {
@@ -241,9 +241,8 @@ namespace SigmaSeries.Plugins
             var useW = Config.Item("wj").GetValue<bool>();
             var useE = Config.Item("ej").GetValue<bool>();
             var stack5 = Config.Item("52").GetValue<bool>();
-            var enemyMinions = MinionManager.GetMinions(Player.Position, 1000, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
-            foreach (var minion in enemyMinions)
+            foreach (var minion in JungleMinions)
             {
                 var stackPrior = Config.Item("jungPriority").GetValue<StringList>().SelectedIndex;
                 if (E.IsReady())

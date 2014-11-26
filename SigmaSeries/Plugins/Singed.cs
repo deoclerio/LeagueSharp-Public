@@ -5,7 +5,7 @@ using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
 using System.Threading.Tasks;
-using LX_Orbwalker;
+using Version = System.Version;
 
 
 namespace SigmaSeries.Plugins
@@ -170,9 +170,9 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQJung").GetValue<bool>();
 
             var minions = MinionManager.GetMinions(ObjectManager.Player.Position, 400, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-            if (minions.Count > 0)
+            if (JungleMinions.Count > 0)
             {
-                foreach (var minion in minions)
+                foreach (var minion in JungleMinions)
                 {
                     if (Q.IsReady() && useQ)
                     {

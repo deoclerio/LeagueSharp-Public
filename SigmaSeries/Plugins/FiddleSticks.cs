@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LX_Orbwalker;
 
 using LeagueSharp;
 using LeagueSharp.Common;
+using Version = System.Version;
 
 namespace SigmaSeries.Plugins
 {
@@ -31,8 +31,8 @@ namespace SigmaSeries.Plugins
             if (sender.Name == Player.Name && args.SData.Name == "Drain")
             {
                 newTime = Game.Time + 1f;
-                LX_Orbwalker.LXOrbwalker.SetMovement(false);
-                LX_Orbwalker.LXOrbwalker.SetAttack(false);
+                Orbwalker.SetMovement(false);
+                Orbwalker.SetAttack(false);
             }
         }
 
@@ -82,14 +82,14 @@ namespace SigmaSeries.Plugins
 
             if (Player.HasBuff("Drain"))
             {
-                LX_Orbwalker.LXOrbwalker.SetMovement(false);
-                LX_Orbwalker.LXOrbwalker.SetAttack(false);
+                Orbwalker.SetMovement(false);
+                Orbwalker.SetAttack(false);
             }
             if (!Player.HasBuff("Drain") && newTime < Game.Time)
             {
                 count = 0;
-                LX_Orbwalker.LXOrbwalker.SetMovement(true);
-                LX_Orbwalker.LXOrbwalker.SetAttack(false);
+                Orbwalker.SetMovement(true);
+                Orbwalker.SetAttack(true);
             }
             if (ComboActive)
             {
@@ -225,12 +225,11 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQJung").GetValue<bool>();
             var useW = Config.Item("UseWJung").GetValue<bool>();
             var useE = Config.Item("UseEJung").GetValue<bool>();
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
             if (!Player.HasBuff("Drain") && newTime < Game.Time)
             {
-                if (jungleMinions.Count > 0)
+                if (JungleMinions.Count > 0)
                 {
-                    foreach (var minion in jungleMinions)
+                    foreach (var minion in JungleMinions)
                     {
                         if (Q.IsReady() && useQ)
                         {

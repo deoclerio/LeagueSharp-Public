@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using LX_Orbwalker;
+using Version = System.Version;
 
 
 namespace SigmaSeries.Plugins
@@ -182,10 +182,8 @@ namespace SigmaSeries.Plugins
         private void jungle()
         {
             var useQ = Config.Item("UseQJung").GetValue<bool>();
-            List<Obj_AI_Base> jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, 800,
-                MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
-            if (jungleMinions.Count > 0)
+            if (JungleMinions.Count > 0)
             {
                 if (GetHpSliderEqual("minQHPJung", Player) && Q.IsReady())
                 {

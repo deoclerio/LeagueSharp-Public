@@ -1,7 +1,7 @@
 ﻿using System;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
+using Version = System.Version;
 
 
 namespace SigmaSeries.Plugins

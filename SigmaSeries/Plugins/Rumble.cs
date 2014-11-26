@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using LX_Orbwalker;
+using Version = System.Version;
 
 
 namespace SigmaSeries.Plugins
@@ -248,11 +248,10 @@ namespace SigmaSeries.Plugins
         {
             var useQ = Config.Item("useQFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useQFarm").GetValue<StringList>().SelectedIndex == 2;
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
 
-            if (jungleMinions.Count > 0)
+            if (JungleMinions.Count > 0)
             {
-                foreach (var minion in jungleMinions)
+                foreach (var minion in JungleMinions)
                 {
                     if (Q.IsReady() && useQ)
                     {

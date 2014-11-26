@@ -3,24 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
+using Version = System.Version;
 
 namespace SigmaSeries
 {
+
     public abstract class PluginBase
     {
+        public Orbwalking.Orbwalker Orbwalker { set; get; }
         public string ChampName { get; set; }
         public Version Version { get; set; }
-        public bool ComboActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Combo; } }
-        public bool HarassActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Harass; } }
-        public bool WaveClearActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneClear; } }
-        public bool FleeActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Flee; } }
-        public bool FreezeActive { get { return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneFreeze; } }
+        public bool ComboActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo; } }
+        public bool HarassActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed; } }
+        public bool WaveClearActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear; } }
+        public bool FleeActive { get { return false; } }
+        public bool FreezeActive { get { return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit; } }
         public Obj_AI_Hero Player { get { return ObjectManager.Player; } }
         public Spell Q { get; set; }
         public Spell W { get; set; }
         public Spell E { get; set; }
         public Spell R { get; set; }
+
+        public List<Obj_AI_Base> JungleMinions = new List<Obj_AI_Base>();
 
         public Menu Config { get; set; }
         public Menu ComboConfig { get; set; }
@@ -113,6 +117,8 @@ namespace SigmaSeries
         {
             Game.OnGameUpdate += args =>
             {
+                JungleMinions = MinionManager.GetMinions(Player.Position, 800, MinionTypes.All, MinionTeam.Neutral,
+                    MinionOrderTypes.MaxHealth).ToList();
                 var Target = SimpleTs.GetTarget(600, SimpleTs.DamageType.Magical);
                 if (Target != null && IgniteSlot != SpellSlot.Unknown 
                     && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready 
@@ -139,7 +145,6 @@ namespace SigmaSeries
             Config = new Menu("SigmaSeries - " + Player.ChampionName, "SigmaSeries - " + Player.ChampionName, true);
             var tsMenu = Config.AddSubMenu(new Menu("TargetSelector", "TargetSelector"));
             SimpleTs.AddToMenu(tsMenu);
-            Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
             ComboConfig = Config.AddSubMenu(new Menu("Combo", "Combo"));
             HarassConfig = Config.AddSubMenu(new Menu("Harass", "Harass"));
             FarmConfig = Config.AddSubMenu(new Menu("Farm", "Farm"));
@@ -175,7 +180,7 @@ namespace SigmaSeries
 
         public void addOW()
         {
-            LXOrbwalker.AddToMenu(Config.SubMenu("Orbwalking"));
+            Orbwalker = new Orbwalking.Orbwalker(Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking")));
         }
         public virtual void ComboMenu(Menu config)
         {

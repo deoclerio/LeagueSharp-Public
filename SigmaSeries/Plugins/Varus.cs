@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
+using Version = System.Version;
 using SharpDX;
 
 namespace SigmaSeries.Plugins
@@ -24,14 +24,14 @@ namespace SigmaSeries.Plugins
             Q.SetCharged("VarusQ", "VarusQ", 1100, 1450, 1.3f);
 
             GameObject.OnCreate += OnCreate;
-            LXOrbwalker.BeforeAttack += Orbwalking_BeforeAttack;
+            Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
         }
 
         public static Spellbook spellBook = ObjectManager.Player.Spellbook;
         public static SpellDataInst wSpell = spellBook.GetSpell(SpellSlot.W);
         
 
-        void Orbwalking_BeforeAttack(LXOrbwalker.BeforeAttackEventArgs args)
+        void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
                 args.Process = !Q.IsCharging;
         }
@@ -282,11 +282,10 @@ namespace SigmaSeries.Plugins
         {
             var useQ = Config.Item("UseQJung").GetValue<bool>();
             var useE = Config.Item("UseEJung").GetValue<bool>();
-            var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
-            if (jungleMinions.Count > 0)
+            if (JungleMinions.Count > 0)
             {
-                foreach (var minion in jungleMinions)
+                foreach (var minion in JungleMinions)
                 {
                     if (Q.IsReady() && useQ)
                     {
