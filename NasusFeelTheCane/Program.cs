@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
 using SharpDX;
+using Color = System.Drawing.Color;
 
 namespace NasusFeelTheCane
 {
     class Program
     {
         public static Menu Config;
+        public static Orbwalking.Orbwalker Orbwalker;
         public static Spell Q;
         public static Spell W;
         public static Spell E;
@@ -31,10 +34,6 @@ namespace NasusFeelTheCane
             {
                 DisplayName = "FioraRiposte", Name = "FioraRiposte"
             },
-            new NewBuff()
-            {
-                DisplayName = "JaxEvasion", Name = "JaxCounterStrike"
-            },
         };
         static void Main(string[] args)
         {
@@ -46,8 +45,28 @@ namespace NasusFeelTheCane
 
         static void Game_OnGameUpdate(EventArgs args)
         {
+            var jungleMinions = MinionManager.GetMinions(Player.Position, E.Range, MinionTypes.All,
+                    MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+            var laneMinions = MinionManager.GetMinions(Player.Position, E.Range, MinionTypes.All, MinionTeam.Enemy,
+                MinionOrderTypes.MaxHealth);
+
+            if (Config.Item("AutoLastHitQ").GetValue<KeyBind>().Active && !Player.HasBuff("Recall") && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
+            {
+                foreach (var minion in laneMinions)
+                {
+                    if (GetBonusDmg(minion) > minion.Health &&
+                        minion.Distance(Player) < Orbwalking.GetRealAutoAttackRange(Player) + 50 && Q.IsReady())
+                    {
+                        Orbwalker.SetAttack(false);
+                        Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
+                        Orbwalker.SetAttack(true);
+                        break;
+                    }
+                }
+            }
+            
             Obj_AI_Hero target = SimpleTs.GetTarget(800, SimpleTs.DamageType.Physical);
-            if ((Player.Health/Player.MaxHealth*100) <= Config.Item("minRHP").GetValue<Slider>().Value)
+            if ((Player.Health/Player.MaxHealth*100) <= Config.Item("minRHP").GetValue<Slider>().Value && !Utility.InFountain())
             {
                 if ((Config.Item("minRChamps").GetValue<Slider>().Value == 0) ||
                     (Config.Item("minRChamps").GetValue<Slider>().Value > 0) &&
@@ -56,24 +75,21 @@ namespace NasusFeelTheCane
                     R.Cast(true);
                 }
             }
-            if (LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Combo && target != null)
+            if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && target != null)
             {
                 if (target.IsValidTarget(W.Range) && paramBool("ComboW")) W.CastOnUnit(target);
-                if (target.IsValidTarget(E.Range) && paramBool("ComboE")) E.Cast(target, Config.Item("packets").GetValue<bool>());
+                if (target.IsValidTarget(E.Range + E.Width) && paramBool("ComboE")) E.Cast(target, Config.Item("packets").GetValue<bool>());
                 if (hasAntiAA(target)) return;
-                if (target.IsValidTarget(LXOrbwalker.GetAutoAttackRange(Player) + 100) && paramBool("ComboQ"))
+                if (target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 100) && paramBool("ComboQ"))
                 {
                     Q.Cast(Config.Item("packets").GetValue<bool>());
                 }
-
+                
             }
             if (isFarmMode())
             {
-                var jungleMinions = MinionManager.GetMinions(Player.Position, E.Range, MinionTypes.All,
-                    MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-                var laneMinions = MinionManager.GetMinions(Player.Position, E.Range, MinionTypes.All, MinionTeam.Enemy,
-                    MinionOrderTypes.MaxHealth);
-                if((LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneClear))
+              
+                if((Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear))
                 {
                     if (jungleMinions.Count > 0)
                     {
@@ -98,11 +114,11 @@ namespace NasusFeelTheCane
                     foreach (var minion in laneMinions)
                     {
                         if (GetBonusDmg(minion) > minion.Health &&
-                            minion.Distance(Player) < LXOrbwalker.GetAutoAttackRange(Player) + 50 && Q.IsReady() && paramBool("JungleQ"))
+                            minion.Distance(Player) < Orbwalking.GetRealAutoAttackRange(Player) + 50 && Q.IsReady() && paramBool("JungleQ"))
                         {
-                            LXOrbwalker.SetAttack(false);
+                            Orbwalker.SetAttack(false);
                             Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
-                            LXOrbwalker.SetAttack(true);
+                            Orbwalker.SetAttack(true);
                             break;
                         }
                     }
@@ -118,17 +134,17 @@ namespace NasusFeelTheCane
                         }
                     }
                 }
-                if ((LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneFreeze || LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Lasthit) && paramBool("LastHitQ"))
+                if ((Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit) && paramBool("LastHitQ"))
                 {
                     if (jungleMinions.Count > 0) return;
                     foreach (var minion in laneMinions)
                     {
                         if (GetBonusDmg(minion) > minion.Health &&
-                            minion.Distance(Player) < LXOrbwalker.GetAutoAttackRange(Player) + 50 && Q.IsReady())
+                            minion.Distance(Player) < Orbwalking.GetRealAutoAttackRange(Player) + 50 && Q.IsReady())
                         {
-                            LXOrbwalker.SetAttack(false);
+                            Orbwalker.SetAttack(false);
                             Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
-                            LXOrbwalker.SetAttack(true);
+                            Orbwalker.SetAttack(true);
                             break;
                         }
                     }
@@ -148,16 +164,15 @@ namespace NasusFeelTheCane
 
         public static bool isFarmMode()
         {  
-            return LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneClear ||
-                   LXOrbwalker.CurrentMode == LXOrbwalker.Mode.Lasthit ||
-                   LXOrbwalker.CurrentMode == LXOrbwalker.Mode.LaneFreeze;
+            return Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear ||
+                   Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit;
         }
 
         static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (!args.SData.Name.ToLower().Contains("attack") || !sender.IsMe) return;
             var unit = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(args.Target.NetworkId);
-            if ((GetBonusDmg(unit) > unit.Health) && isFarmMode())
+            if ((GetBonusDmg(unit) > unit.Health))
             {
                 Q.Cast(Config.Item("packets").GetValue<bool>());
             }
@@ -175,7 +190,7 @@ namespace NasusFeelTheCane
         static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
-            Q = new Spell(SpellSlot.Q, LXOrbwalker.GetAutoAttackRange(Player));
+            Q = new Spell(SpellSlot.Q, Orbwalking.GetRealAutoAttackRange(Player));
             W = new Spell(SpellSlot.W, 600);
             E = new Spell(SpellSlot.E, 650);
             R = new Spell(SpellSlot.R, 0);
@@ -184,7 +199,7 @@ namespace NasusFeelTheCane
             Config = new Menu("Nasus - Feel The Cane", "nftc", true);
 
             var OWMenu = Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
-            LXOrbwalker.AddToMenu(OWMenu);
+            Orbwalker = new Orbwalking.Orbwalker(OWMenu);
             var TSMenu = Config.AddSubMenu(new Menu("Target Selector", "Target Selector"));
             SimpleTs.AddToMenu(TSMenu);
             var ComboMenu = Config.AddSubMenu(new Menu("Combo", "Combo"));
@@ -198,6 +213,7 @@ namespace NasusFeelTheCane
             ComboMenu.AddItem(new MenuItem("fsffs", "Set to 0 to disable"));
 
             var FarmMenu = Config.AddSubMenu(new Menu("Farm", "Farm"));
+            FarmMenu.AddItem(new MenuItem("AutoLastHitQ", "Auto LastHit with Q").SetValue(new KeyBind("M".ToCharArray()[0], KeyBindType.Toggle)));
             FarmMenu.AddItem(new MenuItem("pratum", "-- Last Hit"));
             FarmMenu.AddItem(new MenuItem("LastHitQ", "LastHit with Q").SetValue(true));
             FarmMenu.AddItem(new MenuItem("pratum2", "-- WaveClear"));
@@ -207,9 +223,54 @@ namespace NasusFeelTheCane
             FarmMenu.AddItem(new MenuItem("JungleQ", "Jungle with Q").SetValue(true));
             FarmMenu.AddItem(new MenuItem("JungleE", "Jungle with E").SetValue(true));
 
+            var DrawMenu = Config.AddSubMenu(new Menu("HP Bar Indicator", "HP Bar Indicator"));
+            DrawMenu.AddItem(new MenuItem("drawAA", "Draw AA on HP Bar").SetValue(false));
+            DrawMenu.AddItem(new MenuItem("LineAAThicknessColour", "AA Linethickness / Colour").SetValue(new Circle(true, Color.CornflowerBlue, 10)));
+            DrawMenu.AddItem(new MenuItem("drawHPBar", "Draw AA + Q + Item on HP Bar").SetValue(true));
+            DrawMenu.AddItem(new MenuItem("LineThicknessColour", "Linethickness / Colour").SetValue(new Circle(true, Color.White, 10)));
+
+
             Config.AddItem(new MenuItem("packets", "Packet Cast?")).SetValue(true);
 
             Config.AddToMainMenu();
+
+            Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        public static void Drawing_OnDraw(EventArgs args)
+        {
+            List<Obj_AI_Base> minionList = MinionManager.GetMinions(Player.Position,
+                Orbwalking.GetRealAutoAttackRange(Player) + 500, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.MaxHealth).ToList();
+            foreach (var minion in minionList.Where(minion => minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 500)))
+            {
+                var attackToKill = Math.Ceiling(minion.MaxHealth / GetBonusDmg(minion));
+                var hpBarPosition = minion.HPBarPosition;
+                var barWidth = minion.IsMelee() ? 75 : 80;
+                if (minion.HasBuff("turretshield", true))
+                    barWidth = 70;
+
+                var barDistance = (float)(barWidth / attackToKill);
+                if (Config.Item("drawHPBar").GetValue<bool>())
+                {
+                        var startposition = hpBarPosition.X + 45 + barDistance;
+                        Drawing.DrawLine(
+                            new Vector2(startposition, hpBarPosition.Y + 18),
+                            new Vector2(startposition, hpBarPosition.Y + 23),
+                            2,
+                            Config.Item("LineThicknessColour").GetValue<Circle>().Color);
+                }
+                if (Config.Item("drawAA").GetValue<bool>())
+                {
+                   attackToKill =  Math.Ceiling(minion.MaxHealth / Player.GetAutoAttackDamage(minion));
+                   barDistance = (float)(barWidth / attackToKill);
+                   var startposition = hpBarPosition.X + 45 + barDistance;
+                   Drawing.DrawLine(
+                       new Vector2(startposition, hpBarPosition.Y + 18),
+                       new Vector2(startposition, hpBarPosition.Y + 23),
+                       2,
+                       Config.Item("LineAAThicknessColour").GetValue<Circle>().Color);
+                }
+            } 
         }
 
         public static bool paramBool(String menuName)

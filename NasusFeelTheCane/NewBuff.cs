@@ -10,5 +10,7 @@ namespace NasusFeelTheCane
     {
         public string DisplayName { set; get; }
         public string Name { set; get; }
+
+      
     }
 }
