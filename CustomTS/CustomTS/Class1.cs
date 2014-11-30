@@ -8,17 +8,28 @@ using LeagueSharp;
 using SharpDX;
 using Color = System.Drawing.Color;
 
+namespace TS
+{
+
+
+
     public static class CustomTS
     {
-        private static bool DrawText = false;
+        private static bool DrawText;
         private static Menu Menu;
         private static String text = "Target Selector Mode is now: ";
+
         public static void addTSToMenu(this Menu MainMenu)
         {
             var menu = MainMenu.AddSubMenu(new Menu("Target Selector", "Target Selector"));
             menu.AddItem(new MenuItem("Draw Target", "Draw Target")).SetValue(new Circle(true, Color.DodgerBlue));
             menu.AddItem(new MenuItem("Selected Mode", "Selected Mode"))
-                .SetValue(new StringList(new[] { "Auto", "Closest", "Less Attack", "Less Cast", "Low Hp", "Highest AD", "Highest Ap", "Near Mouse", "Priority" }));
+                .SetValue(
+                    new StringList(new[]
+                    {
+                        "Auto", "Closest", "Less Attack", "Less Cast", "Low Hp", "Highest AD", "Highest Ap", "Near Mouse",
+                        "Priority"
+                    }));
             var priorMenu = menu.AddSubMenu(new Menu("Priority", "Priority"));
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(a => !a.IsAlly))
             {
@@ -30,7 +41,7 @@ using Color = System.Drawing.Color;
 
         }
 
-        static void Drawing_OnDraw(EventArgs args)
+        private static void Drawing_OnDraw(EventArgs args)
         {
             if (Target() != null && Menu.Item("Draw Target").GetValue<Circle>().Active)
             {
@@ -40,7 +51,7 @@ using Color = System.Drawing.Color;
 
         private static int fatness(this Obj_AI_Hero t)
         {
-            return (int)(t.ChampionsKilled * 1 + t.Assists * 0.375 + t.MinionsKilled * 0.067);
+            return (int) (t.ChampionsKilled*1 + t.Assists*0.375 + t.MinionsKilled*0.067);
         }
 
         public static void UpdateTSMode(Menu Config)
@@ -91,6 +102,7 @@ using Color = System.Drawing.Color;
                 Utility.DelayAction.Add(2000, () => { DrawText = false; });
             }
         }
+
         public static Obj_AI_Hero Target()
         {
             var priorty = 5;
@@ -117,5 +129,7 @@ using Color = System.Drawing.Color;
             }
             return target;
         }
+
         public static TargetSelector TargetSelector { set; get; }
     }
+}
