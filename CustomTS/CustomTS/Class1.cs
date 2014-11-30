@@ -44,6 +44,10 @@ namespace CustomTS
             {
                 Utility.DrawCircle(Target().Position, 120, Menu.Item("Draw Target").GetValue<Circle>().Color);
             }
+            if (DrawText)
+            {
+                Drawing.DrawText(100, 100, Color.White, text);
+            }
         }
 
         private static int fatness(this Obj_AI_Hero t)
@@ -54,10 +58,7 @@ namespace CustomTS
         public static void UpdateTSMode(Menu Config)
         {
             Menu = Config;
-            if (DrawText)
-            {
-                Drawing.DrawText(100, 100, Color.White, text);
-            }
+          
 
             bool Priority = false;
             TargetSelector.TargetingMode mode = TargetSelector.GetTargetingMode();
