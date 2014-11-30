@@ -8,8 +8,6 @@ using LeagueSharp;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace CustomTS
-{
     public static class CustomTS
     {
         private static bool DrawText = false;
@@ -121,4 +119,3 @@ namespace CustomTS
         }
         public static TargetSelector TargetSelector { set; get; }
     }
-}
