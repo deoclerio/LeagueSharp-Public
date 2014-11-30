@@ -128,6 +128,11 @@ namespace CustomTS
             return target;
         }
 
-        public static TargetSelector TargetSelector { set; get; }
+        public static void setRange( float range)
+        {
+            TargetSelector.SetRange(range);
+        }
+
+        public static TargetSelector TargetSelector = new TargetSelector(0, TargetSelector.TargetingMode.AutoPriority);
     }
 }
