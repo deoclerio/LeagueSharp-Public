@@ -8,12 +8,9 @@ using LeagueSharp;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace TS
+namespace CustomTS
 {
-
-
-
-    public static class CustomTS
+    public static class CTS
     {
         private static bool DrawText;
         private static Menu Menu;
