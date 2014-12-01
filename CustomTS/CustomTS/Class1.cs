@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,11 +15,18 @@ namespace CustomTS
     {
         private static bool DrawText;
         private static Menu Menu;
+        private static Menu Config;
         private static String text = "Target Selector Mode is now: ";
+        private static Obj_AI_Hero selectedTarget;
+        private static float selectedRange = 1000;
+
 
         public static void addTSToMenu(this Menu MainMenu)
         {
             var menu = MainMenu.AddSubMenu(new Menu("Target Selector", "Target Selector"));
+            menu.AddItem(new MenuItem("Selected Target", "Left Click Target")).SetValue(true);
+            menu.AddItem(new MenuItem("STR", "Left Click Target Range")).SetValue(new Slider(1500, 1, 3000));
+            menu.AddItem(new MenuItem("STS", "Select Smite Target if near buff")).SetValue(true).SetShared();
             menu.AddItem(new MenuItem("Draw Target", "Draw Target")).SetValue(new Circle(true, Color.DodgerBlue));
             menu.AddItem(new MenuItem("Selected Mode", "Selected Mode"))
                 .SetValue(
@@ -34,21 +42,40 @@ namespace CustomTS
             }
             priorMenu.AddItem(new MenuItem("Lowest no. is Highest", "Lowest is Highest"));
             Game.OnGameUpdate += a => UpdateTSMode(MainMenu);
+            Game.OnWndProc += Game_OnWndProc;
             Drawing.OnDraw += Drawing_OnDraw;
-
         }
 
-        private static void Drawing_OnDraw(EventArgs args)
+        static void Drawing_OnDraw(EventArgs args)
         {
             if (Target() != null && Menu.Item("Draw Target").GetValue<Circle>().Active)
             {
-                Utility.DrawCircle(Target().Position, 120, Menu.Item("Draw Target").GetValue<Circle>().Color);
+                Utility.DrawCircle(Target().Position, 120,  Target() == selectedTarget ?  Color.Red : Menu.Item("Draw Target").GetValue<Circle>().Color);
             }
-            if (DrawText)
+           
+        }
+
+        static void Game_OnWndProc(WndEventArgs args)
+        {
+            if (Menu.Item("Selected Target").GetValue<bool>() == false) return;
+            if (MenuGUI.IsChatOpen || ObjectManager.Player.Spellbook.SelectedSpellSlot != SpellSlot.Unknown)
             {
-                Drawing.DrawText(100, 100, Color.White, text);
+                return;
+            }
+            if (args.WParam == 1) // LMouse
+            {
+                foreach (var hero in ObjectManager.Get<Obj_AI_Hero>())
+                {
+                    if (hero.IsValidTarget() &&
+                        Vector2.Distance(Game.CursorPos.To2D(), hero.ServerPosition.To2D()) < 300)
+                    {
+                        selectedTarget = hero;
+                        Utility.DelayAction.Add(5000, () => selectedTarget = null);
+                    }
+                }
             }
         }
+
 
         private static int fatness(this Obj_AI_Hero t)
         {
@@ -58,8 +85,7 @@ namespace CustomTS
         public static void UpdateTSMode(Menu Config)
         {
             Menu = Config;
-          
-
+            
             bool Priority = false;
             TargetSelector.TargetingMode mode = TargetSelector.GetTargetingMode();
             switch (Config.Item("Selected Mode").GetValue<StringList>().SelectedIndex)
@@ -95,16 +121,16 @@ namespace CustomTS
             if (TargetSelector.GetTargetingMode() != mode && Priority == false)
             {
                 TargetSelector.SetTargetingMode(mode);
-                text = ("Target Selector Mode is now: " + mode);
-                DrawText = true;
-                Utility.DelayAction.Add(2000, () => { DrawText = false; });
             }
+
+            if (selectedTarget.IsDead && selectedTarget != null) { selectedTarget = null; }
         }
 
         public static Obj_AI_Hero Target()
         {
             var priorty = 5;
             Obj_AI_Hero target = null;
+            if (selectedTarget != null && selectedTarget.IsValidTarget(Menu.Item("STR").GetValue<Slider>().Value)) return selectedTarget;
             if (Menu.Item("Selected Mode").GetValue<StringList>().SelectedIndex == 8)
             {
 
@@ -131,6 +157,11 @@ namespace CustomTS
         public static void setRange(float range)
         {
             TargetSelector.SetRange(range);
+        }
+
+        public static void setSelectRange(float MaxRange)
+        {
+            Menu.Item("STR").SetValue(new Slider((int)MaxRange, 1, 3000));
         }
 
         private static TargetSelector TargetSelector = new TargetSelector(0, TargetSelector.TargetingMode.AutoPriority);
