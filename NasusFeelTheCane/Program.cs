@@ -65,7 +65,7 @@ namespace NasusFeelTheCane
                 }
             }
             
-            Obj_AI_Hero target = SimpleTs.GetTarget(800, SimpleTs.DamageType.Physical);
+            Obj_AI_Hero target = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
             if ((Player.Health/Player.MaxHealth*100) <= Config.Item("minRHP").GetValue<Slider>().Value && !Utility.InFountain())
             {
                 if ((Config.Item("minRChamps").GetValue<Slider>().Value == 0) ||
@@ -201,7 +201,7 @@ namespace NasusFeelTheCane
             var OWMenu = Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
             Orbwalker = new Orbwalking.Orbwalker(OWMenu);
             var TSMenu = Config.AddSubMenu(new Menu("Target Selector", "Target Selector"));
-            SimpleTs.AddToMenu(TSMenu);
+            TargetSelector.AddToMenu(TSMenu);
             var ComboMenu = Config.AddSubMenu(new Menu("Combo", "Combo"));
             ComboMenu.AddItem(new MenuItem("ComboQ", "Combo with Q").SetValue(true));
             ComboMenu.AddItem(new MenuItem("ComboW", "Combo with W").SetValue(true));
