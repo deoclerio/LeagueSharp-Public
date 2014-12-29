@@ -189,6 +189,7 @@ namespace NasusFeelTheCane
 
         static void Game_OnGameLoad(EventArgs args)
         {
+            if (ObjectManager.Player.ChampionName != "Nasus") return;
             Player = ObjectManager.Player;
             Q = new Spell(SpellSlot.Q, Orbwalking.GetRealAutoAttackRange(Player));
             W = new Spell(SpellSlot.W, 600);
