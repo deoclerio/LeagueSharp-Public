@@ -1,0 +1,16 @@
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SigmaSeries.exe.config
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\obj\Debug\SigmaSeries.csprojResolveAssemblyReference.cache
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SigmaSeries.exe
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SigmaSeries.pdb
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\clipper_library.dll
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\LeagueSharp.Common.dll
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\LeagueSharp.dll
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SharpDX.dll
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SharpDX.Toolkit.dll
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SharpDX.Toolkit.Graphics.dll
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\LeagueSharp.xml
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SharpDX.Toolkit.xml
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\bin\Release\SharpDX.Toolkit.Graphics.xml
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\obj\Debug\SigmaSeries.exe
+C:\Users\Joey\Desktop\LoL\L#\Projects\SigmaSeries\SigmaSeries\obj\Debug\SigmaSeries.pdb

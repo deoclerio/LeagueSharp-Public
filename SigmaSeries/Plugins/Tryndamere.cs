@@ -90,7 +90,7 @@ namespace SigmaSeries.Plugins
             var useWB = Config.Item("wBack").GetValue<bool>();
             var useE = Config.Item("UseECombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
-            Obj_AI_Hero Target = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
+            Obj_AI_Hero Target = TargetSelector.GetTarget(1000, TargetSelector.DamageType.Physical);
             if (Target != null)
             {
                 //castItems(Target);

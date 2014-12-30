@@ -119,7 +119,7 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQCombo").GetValue<bool>();
             var useW = Config.Item("UseWCombo").GetValue<bool>();
             var useE = Config.Item("UseECombo").GetValue<bool>();
-            var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var Target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             if (Target != null)
             {
                 if (!Player.HasBuff("Drain") && newTime < Game.Time)
@@ -147,7 +147,7 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQHarass").GetValue<bool>();
             var useW = Config.Item("UseWHarass").GetValue<bool>();
             var useE = Config.Item("UseEHarass").GetValue<bool>();
-            var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var Target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             if (Target != null)
             {
                 if (!Player.HasBuff("Drain") && newTime < Game.Time)

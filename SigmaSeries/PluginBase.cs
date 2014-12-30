@@ -108,7 +108,6 @@ namespace SigmaSeries
             Game.OnGameUpdate += OnUpdate;
             Drawing.OnDraw += OnDraw;
             Orbwalking.BeforeAttack += BeforeAttack;
-            Orbwalking.AfterAttack += AfterAttack;
             AntiGapcloser.OnEnemyGapcloser += OnEnemyGapcloser;
             Interrupter.OnPossibleToInterrupt +=Interrupter_OnPossibleToInterrupt;
         }
@@ -119,13 +118,13 @@ namespace SigmaSeries
             {
                 JungleMinions = MinionManager.GetMinions(Player.Position, 800, MinionTypes.All, MinionTeam.Neutral,
                     MinionOrderTypes.MaxHealth).ToList();
-                var Target = SimpleTs.GetTarget(600, SimpleTs.DamageType.Magical);
+                var Target = TargetSelector.GetTarget(600, TargetSelector.DamageType.Magical);
                 if (Target != null && IgniteSlot != SpellSlot.Unknown 
-                    && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready 
+                    && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready 
                     && ObjectManager.Player.GetSummonerSpellDamage(Target, Damage.SummonerSpell.Ignite) > Target.Health
                     && Config.Item("IGNks").GetValue<bool>())
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, Target);
+                    Player.Spellbook.CastSpell(IgniteSlot, Target);
                 }
             };
 
@@ -144,7 +143,7 @@ namespace SigmaSeries
         {
             Config = new Menu("SigmaSeries - " + Player.ChampionName, "SigmaSeries - " + Player.ChampionName, true);
             var tsMenu = Config.AddSubMenu(new Menu("TargetSelector", "TargetSelector"));
-            SimpleTs.AddToMenu(tsMenu);
+            TargetSelector.AddToMenu(tsMenu);
             ComboConfig = Config.AddSubMenu(new Menu("Combo", "Combo"));
             HarassConfig = Config.AddSubMenu(new Menu("Harass", "Harass"));
             FarmConfig = Config.AddSubMenu(new Menu("Farm", "Farm"));

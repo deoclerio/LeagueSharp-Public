@@ -134,7 +134,7 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQCombo").GetValue<bool>();
             var useW = Config.Item("UseWCombo").GetValue<bool>();
             var useR = Config.Item("UseRCombo").GetValue<bool>();
-            var Target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var Target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             if (Target != null)
             {
                 if (Target.IsValidTarget(Q.Range) && useQ && Q.IsReady())
@@ -147,7 +147,7 @@ namespace SigmaSeries.Plugins
                 {
                     R.Cast(Target, packetCast);
                 }
-                if (Target.IsValidTarget(W.Range) && useW && W.IsReady())
+                if (Utility.IsValidTarget(Target, W.Range) && useW && W.IsReady())
                 {
                     W.CastOnUnit(Player, packetCast);
                 }
@@ -157,7 +157,7 @@ namespace SigmaSeries.Plugins
         {
             var useQ = Config.Item("UseQHarass").GetValue<bool>();
             var useW = Config.Item("UseWHarass").GetValue<bool>();
-            var Target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var Target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
             if (Target != null)
             {
