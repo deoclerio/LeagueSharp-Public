@@ -66,11 +66,11 @@ namespace NasusFeelTheCane
             }
             
             Obj_AI_Hero target = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
-            if ((Player.Health/Player.MaxHealth*100) <= Config.Item("minRHP").GetValue<Slider>().Value && !Utility.InFountain())
+            if ((Player.Health/Player.MaxHealth*100) <= Config.Item("minRHP").GetValue<Slider>().Value && !Player.InFountain())
             {
                 if ((Config.Item("minRChamps").GetValue<Slider>().Value == 0) ||
                     (Config.Item("minRChamps").GetValue<Slider>().Value > 0) &&
-                    Utility.CountEnemysInRange(800) >= Config.Item("minRChamps").GetValue<Slider>().Value)
+                    Utility.CountEnemiesInRange(800) >= Config.Item("minRChamps").GetValue<Slider>().Value)
                 {
                     R.Cast(true);
                 }
