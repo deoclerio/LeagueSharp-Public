@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="PluginBase.cs" />
     <Compile Include="Plugins\Cassiopeia.cs" />
+    <Compile Include="Plugins\Singed.cs" />
     <Compile Include="Plugins\Darius.cs" />
     <Compile Include="Plugins\FiddleSticks.cs" />
     <Compile Include="Plugins\Fizz.cs" />

@@ -21,29 +21,21 @@ namespace SigmaSeries.Plugins
             R = new Spell(SpellSlot.R, 0);
 
             LeagueSharp.Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.OnGameSendPacket += Game_OnGameSendPacket;
         }
-        public static int count;
+
         public static float newTime;
         public static bool packetCast;
         private void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.Name == Player.Name && args.SData.Name == "Drain")
             {
-                newTime = Game.Time + 1f;
+                Game.PrintChat("@@");
+                newTime = Environment.TickCount + 1000;
                 Orbwalker.SetMovement(false);
                 Orbwalker.SetAttack(false);
             }
         }
 
-        private void Game_OnGameSendPacket(GamePacketEventArgs args)
-        {
-            if (args.PacketData[0] == 0x72 && Player.HasBuff("Drain") && count < 3)
-            {
-                count = count + 1;
-                args.Process = false;
-            }
-        }
 
         public override void ComboMenu(Menu config)
         {
@@ -78,16 +70,18 @@ namespace SigmaSeries.Plugins
 
         public override void OnUpdate(EventArgs args)
         {
-            packetCast = Config.Item("packetCast").GetValue<bool>();
 
-            if (Player.HasBuff("Drain"))
+            Orbwalker.SetAttack(false);
+            Orbwalker.SetMovement(false);
+            
+            packetCast = Config.Item("packetCast").GetValue<bool>();
+            if (Player.Buffs.Any(a => a.DisplayName == "Drain"))
             {
                 Orbwalker.SetMovement(false);
                 Orbwalker.SetAttack(false);
             }
-            if (!Player.HasBuff("Drain") && newTime < Game.Time)
+            if (Player.Buffs.All(a => a.DisplayName != "Drain") && Environment.TickCount > newTime)
             {
-                count = 0;
                 Orbwalker.SetMovement(true);
                 Orbwalker.SetAttack(true);
             }
@@ -122,7 +116,7 @@ namespace SigmaSeries.Plugins
             var Target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             if (Target != null)
             {
-                if (!Player.HasBuff("Drain") && newTime < Game.Time)
+                if (Player.Buffs.Any(a => a.DisplayName == "Drain") && Environment.TickCount > newTime)
                 {
                     if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                     {
@@ -150,7 +144,7 @@ namespace SigmaSeries.Plugins
             var Target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             if (Target != null)
             {
-                if (!Player.HasBuff("Drain") && newTime < Game.Time)
+                if (Player.Buffs.Any(a => a.DisplayName  != "Drain") && Environment.TickCount > newTime)
                 {
                     if (Player.Distance(Target) < Q.Range && useQ && Q.IsReady())
                     {
@@ -159,6 +153,8 @@ namespace SigmaSeries.Plugins
                     }
                     if (Player.Distance(Target) < W.Range && useW && W.IsReady())
                     {
+                        Orbwalker.SetAttack(false);
+                        Orbwalker.SetMovement(false);
                         W.CastOnUnit(Target, packetCast);
                         return;
                     }
@@ -175,7 +171,7 @@ namespace SigmaSeries.Plugins
             var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 1 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            if (!Player.HasBuff("Drain") && newTime < Game.Time)
+            if (Player.Buffs.Any(a => a.DisplayName  != "Drain") && Environment.TickCount > newTime)
             {
                 if (jungleMinions.Count > 0)
                 {
@@ -188,7 +184,9 @@ namespace SigmaSeries.Plugins
                         }
                         if (W.IsReady() && useW)
                         {
-                            W.CastOnUnit(minion, packetCast);
+                            Orbwalker.SetAttack(false);
+                            Orbwalker.SetMovement(false);
+                            Utility.DelayAction.Add(100, () => W.CastOnUnit(minion, packetCast));
                             return;
                         }
                     }
@@ -200,7 +198,7 @@ namespace SigmaSeries.Plugins
             var useW = Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useWFarm").GetValue<StringList>().SelectedIndex == 2;
             var useE = Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 0 || Config.Item("useEFarm").GetValue<StringList>().SelectedIndex == 2;
             var jungleMinions = MinionManager.GetMinions(ObjectManager.Player.Position, E.Range, MinionTypes.All);
-            if (!Player.HasBuff("Drain") && newTime < Game.Time)
+            if (Player.Buffs.Any(a => a.DisplayName  != "Drain") && Environment.TickCount > newTime)
             {
                 if (jungleMinions.Count > 0)
                 {
@@ -211,11 +209,10 @@ namespace SigmaSeries.Plugins
                             E.CastOnUnit(minion, packetCast);
                             return;
                         }
-                        if (W.IsReady() && useW)
-                        {
-                            W.CastOnUnit(minion, packetCast);
-                            return;
-                        }
+                        Orbwalker.SetAttack(false);
+                        Orbwalker.SetMovement(false);
+                        Utility.DelayAction.Add(100, () => W.CastOnUnit(minion, packetCast));
+                        return;
                     }
                 }
             }
@@ -225,7 +222,7 @@ namespace SigmaSeries.Plugins
             var useQ = Config.Item("UseQJung").GetValue<bool>();
             var useW = Config.Item("UseWJung").GetValue<bool>();
             var useE = Config.Item("UseEJung").GetValue<bool>();
-            if (!Player.HasBuff("Drain") && newTime < Game.Time)
+            if (Player.Buffs.Any(a => a.DisplayName  != "Drain") && Environment.TickCount > newTime)
             {
                 if (JungleMinions.Count > 0)
                 {
@@ -243,6 +240,8 @@ namespace SigmaSeries.Plugins
                         }
                         if (W.IsReady() && useW)
                         {
+                            Orbwalker.SetAttack(false);
+                            Orbwalker.SetMovement(false);
                             W.CastOnUnit(minion, packetCast);
                             return;
                         }
