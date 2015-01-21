@@ -17,7 +17,7 @@ namespace SigmaSeries.Plugins
         {
             Q = new Spell(SpellSlot.Q, 425);
             W = new Spell(SpellSlot.W, 210);
-            E = new Spell(SpellSlot.E, 540);
+            E = new Spell(SpellSlot.E, 550);
             R = new Spell(SpellSlot.R, 460);
 
             E.SetSkillshot(0.5f, 300f, 1500f, false, SkillshotType.SkillshotCone);
