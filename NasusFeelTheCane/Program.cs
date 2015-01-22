@@ -22,6 +22,7 @@ namespace NasusFeelTheCane
         public static Spell R;
         public static Obj_AI_Hero Player;
         public static Int32 Sheen = 3057, Iceborn = 3025;
+        public static float respawnDelay;
 
         public static List<NewBuff> buffList =  new List<NewBuff>
         {
@@ -38,13 +39,12 @@ namespace NasusFeelTheCane
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.OnGameUpdate += Game_OnGameUpdate;
-            
         }
 
         static void Game_OnGameUpdate(EventArgs args)
         {
+            if (Player.IsDead)
+                respawnDelay = Environment.TickCount + 500;
             var jungleMinions = MinionManager.GetMinions(Player.Position, E.Range, MinionTypes.All,
                     MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
             var laneMinions = MinionManager.GetMinions(Player.Position, E.Range, MinionTypes.All, MinionTeam.Enemy,
@@ -66,7 +66,7 @@ namespace NasusFeelTheCane
             }
             
             Obj_AI_Hero target = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
-            if ((Player.Health/Player.MaxHealth*100) <= Config.Item("minRHP").GetValue<Slider>().Value && !Player.InFountain())
+            if ((Player.Health/Player.MaxHealth*100) <= Config.Item("minRHP").GetValue<Slider>().Value && !Player.InFountain() && Environment.TickCount >= respawnDelay)
             {
                 if ((Config.Item("minRChamps").GetValue<Slider>().Value == 0) ||
                     (Config.Item("minRChamps").GetValue<Slider>().Value > 0) &&
@@ -80,7 +80,7 @@ namespace NasusFeelTheCane
                 if (target.IsValidTarget(W.Range) && paramBool("ComboW")) W.CastOnUnit(target);
                 if (target.IsValidTarget(E.Range + E.Width) && paramBool("ComboE")) E.Cast(target, Config.Item("packets").GetValue<bool>());
                 if (hasAntiAA(target)) return;
-                if (target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 100) && paramBool("ComboQ"))
+                if (target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 200) && paramBool("ComboQ"))
                 {
                     Q.Cast(Config.Item("packets").GetValue<bool>());
                 }
@@ -154,13 +154,8 @@ namespace NasusFeelTheCane
 
         public static bool hasAntiAA(Obj_AI_Hero target)
         {
-            foreach (var buff in buffList)
-            {
-                if (target.HasBuff(buff.DisplayName) || target.HasBuff(buff.Name) ||
-                    Player.HasBuffOfType(BuffType.Blind)) return true;
-            }
-            return false;
-        } 
+            return buffList.Any(buff => target.HasBuff(buff.DisplayName) || target.HasBuff(buff.Name) || Player.HasBuffOfType(BuffType.Blind));
+        }
 
         public static bool isFarmMode()
         {  
@@ -235,6 +230,10 @@ namespace NasusFeelTheCane
 
             Config.AddToMainMenu();
 
+            respawnDelay = Environment.TickCount;
+
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
