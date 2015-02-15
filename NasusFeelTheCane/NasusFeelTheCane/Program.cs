@@ -179,7 +179,7 @@ namespace NasusFeelTheCane
             double DmgItem = 0;
             if (Items.HasItem(Sheen) && (Items.CanUseItem(Sheen) || Player.HasBuff("sheen", true)) && Player.BaseAttackDamage > DmgItem) DmgItem = Damage.GetAutoAttackDamage(Player, target);
             if (Items.HasItem(Iceborn) && (Items.CanUseItem(Iceborn) || Player.HasBuff("itemfrozenfist", true)) && Player.BaseAttackDamage * 1.25 > DmgItem) DmgItem = Damage.GetAutoAttackDamage(Player, target) * 1.25;
-            return Q.GetDamage(target) + Damage.GetAutoAttackDamage(Player, target) + DmgItem;
+            return Q.GetDamage(target) + Player.GetAutoAttackDamage(target) + DmgItem;
         }
 
         static void Game_OnGameLoad(EventArgs args)
@@ -243,13 +243,14 @@ namespace NasusFeelTheCane
                 Orbwalking.GetRealAutoAttackRange(Player) + 500, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.MaxHealth).ToList();
             foreach (var minion in minionList.Where(minion => minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 500)))
             {
-                var attackToKill = Math.Ceiling(minion.MaxHealth / (minion.MaxHealth < )GetBonusDmg(minion));
+                var attackToKill = Math.Ceiling(minion.MaxHealth / ((minion.MaxHealth > GetBonusDmg(minion)) ? GetBonusDmg(minion) : minion.MaxHealth -1));
                 var hpBarPosition = minion.HPBarPosition;
                 var barWidth = minion.IsMelee() ? 75 : 80;
                 if (minion.HasBuff("turretshield", true))
                     barWidth = 70;
 
-                var barDistance = (float)(barWidth / attackToKill);
+                
+                var barDistance = (int) (barWidth / attackToKill);
                 if (Config.Item("drawHPBar").GetValue<bool>())
                 {
                     var startposition = hpBarPosition.X + 45 + barDistance;
@@ -261,14 +262,20 @@ namespace NasusFeelTheCane
                 }
                 if (Config.Item("drawAA").GetValue<bool>())
                 {
-                    attackToKill = Math.Ceiling(minion.MaxHealth / Player.GetAutoAttackDamage(minion));
-                    barDistance = (float)(barWidth / attackToKill);
-                    var startposition = hpBarPosition.X + 45 + barDistance;
-                    Drawing.DrawLine(
-                        new Vector2(startposition, hpBarPosition.Y + 18),
-                        new Vector2(startposition, hpBarPosition.Y + 23),
-                        2,
-                        Config.Item("LineAAThicknessColour").GetValue<Circle>().Color);
+                    var ad = Player.CalcDamage(minion, Damage.DamageType.Physical,
+                        Player.FlatPhysicalDamageMod + Player.BaseAttackDamage);
+                    var amount = Math.Floor(minion.Health/ad);
+                    for (int i = 0; i >= amount; i++)
+                    {
+                        barDistance = barWidth / (int) (i*ad > minion.Health ? minion.MaxHealth/(minion.MaxHealth-1) : minion.MaxHealth/(i*ad));
+
+                        var startposition = hpBarPosition.X + 45 + barDistance;
+                        Drawing.DrawLine(
+                            new Vector2(startposition, hpBarPosition.Y + 18),
+                            new Vector2(startposition, hpBarPosition.Y + 23),
+                            2,
+                            Config.Item("LineAAThicknessColour").GetValue<Circle>().Color);
+                    }
                 }
             }
         }
